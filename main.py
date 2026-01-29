@@ -39,7 +39,20 @@ async def lifespan(app: FastAPI):
     logger.info(f"Typos Enabled: {settings.ENABLE_TYPOS}")
     logger.info(f"Delays Enabled: {settings.ENABLE_DELAYS}")
     
-    # Check LLM availability
+    # Check LLM availability (Priority: Pollinations → Cerebras → Groq → Gemini)
+    logger.info(f"Primary LLM: {getattr(settings, 'PRIMARY_LLM', 'pollinations')}")
+    logger.info(f"Fallback LLM: {getattr(settings, 'FALLBACK_LLM', 'cerebras')}")
+    
+    if getattr(settings, 'POLLINATIONS_API_KEY', None):
+        logger.info("✓ Pollinations API configured")
+    else:
+        logger.warning("✗ Pollinations API key not set")
+    
+    if getattr(settings, 'CEREBRAS_API_KEY', None):
+        logger.info("✓ Cerebras API configured")
+    else:
+        logger.warning("✗ Cerebras API key not set")
+    
     if settings.GROQ_API_KEY:
         logger.info("✓ Groq API configured")
     else:
