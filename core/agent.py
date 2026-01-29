@@ -31,72 +31,149 @@ class AgentResponse:
 class LLMClient:
     """
     Multi-model LLM client with fallback support.
-    Primary: Groq (fast), Fallback: Gemini (reliable)
+    Priority: Pollinations → Cerebras → Groq → Gemini (configurable via PRIMARY_LLM/FALLBACK_LLM)
     """
     
     def __init__(self):
         self._groq_client = None
-        self._gemini_model = None
+        self._gemini_client = None
+        self._httpx_client = None
+        self._available_providers = []
         self._init_clients()
     
     def _init_clients(self):
-        """Initialize LLM clients."""
+        """Initialize LLM clients based on available API keys."""
+        import httpx
+        self._httpx_client = httpx.AsyncClient(timeout=30.0)
+        
+        # Check Pollinations (no API key required, but check if configured)
+        if getattr(settings, 'POLLINATIONS_API_KEY', None):
+            self._available_providers.append('pollinations')
+            logger.info("✓ Pollinations API configured")
+        
+        # Check Cerebras
+        if getattr(settings, 'CEREBRAS_API_KEY', None):
+            self._available_providers.append('cerebras')
+            logger.info("✓ Cerebras API configured")
+        
         # Initialize Groq
         if settings.GROQ_API_KEY:
             try:
                 from groq import Groq
                 self._groq_client = Groq(api_key=settings.GROQ_API_KEY)
-                logger.info("Groq client initialized")
+                self._available_providers.append('groq')
+                logger.info("✓ Groq API configured")
             except ImportError:
                 logger.warning("groq package not installed")
             except Exception as e:
                 logger.warning(f"Failed to initialize Groq: {e}")
         
-        # Initialize Gemini
+        # Initialize Gemini (using new google.genai package)
         if settings.GEMINI_API_KEY:
             try:
-                import google.generativeai as genai
-                genai.configure(api_key=settings.GEMINI_API_KEY)
-                self._gemini_model = genai.GenerativeModel('gemini-1.5-flash')
-                logger.info("Gemini client initialized")
+                from google import genai
+                self._gemini_client = genai.Client(api_key=settings.GEMINI_API_KEY)
+                self._available_providers.append('gemini')
+                logger.info("✓ Gemini API configured")
             except ImportError:
-                logger.warning("google-generativeai package not installed")
+                logger.warning("google-genai package not installed")
             except Exception as e:
                 logger.warning(f"Failed to initialize Gemini: {e}")
     
     async def generate(self, prompt: str, max_tokens: int = 256) -> str:
         """
-        Generate response using available LLM with fallback.
+        Generate response using configured PRIMARY_LLM with FALLBACK_LLM.
         """
-        # Try Groq first (faster)
-        if self._groq_client:
-            try:
-                response = await self._call_groq(prompt, max_tokens)
-                if response:
-                    return response
-            except Exception as e:
-                logger.warning(f"Groq failed, falling back to Gemini: {e}")
+        primary = getattr(settings, 'PRIMARY_LLM', 'pollinations')
+        fallback = getattr(settings, 'FALLBACK_LLM', 'cerebras')
         
-        # Fallback to Gemini
-        if self._gemini_model:
+        # Try primary LLM
+        if primary in self._available_providers:
             try:
-                response = await self._call_gemini(prompt, max_tokens)
+                response = await self._call_provider(primary, prompt, max_tokens)
                 if response:
                     return response
             except Exception as e:
-                logger.error(f"Gemini also failed: {e}")
+                logger.warning(f"{primary} failed, falling back to {fallback}: {e}")
+        
+        # Try fallback LLM
+        if fallback in self._available_providers:
+            try:
+                response = await self._call_provider(fallback, prompt, max_tokens)
+                if response:
+                    return response
+            except Exception as e:
+                logger.warning(f"{fallback} also failed: {e}")
+        
+        # Try any available provider
+        for provider in self._available_providers:
+            if provider not in [primary, fallback]:
+                try:
+                    response = await self._call_provider(provider, prompt, max_tokens)
+                    if response:
+                        return response
+                except Exception as e:
+                    logger.warning(f"{provider} failed: {e}")
         
         # Final fallback - return a generic confused response
         return self._get_fallback_response()
     
+    async def _call_provider(self, provider: str, prompt: str, max_tokens: int) -> Optional[str]:
+        """Route to appropriate provider."""
+        if provider == 'pollinations':
+            return await self._call_pollinations(prompt, max_tokens)
+        elif provider == 'cerebras':
+            return await self._call_cerebras(prompt, max_tokens)
+        elif provider == 'groq':
+            return await self._call_groq(prompt, max_tokens)
+        elif provider == 'gemini':
+            return await self._call_gemini(prompt, max_tokens)
+        return None
+    
+    async def _call_pollinations(self, prompt: str, max_tokens: int) -> Optional[str]:
+        """Call Pollinations API - NO RATE LIMITS!"""
+        response = await self._httpx_client.post(
+            "https://text.pollinations.ai/openai",
+            headers={
+                "Authorization": f"Bearer {settings.POLLINATIONS_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.7,
+                "max_tokens": max_tokens
+            }
+        )
+        response.raise_for_status()
+        data = response.json()
+        return data["choices"][0]["message"]["content"]
+    
+    async def _call_cerebras(self, prompt: str, max_tokens: int) -> Optional[str]:
+        """Call Cerebras API - Ultra-fast Llama 3.3 70B."""
+        response = await self._httpx_client.post(
+            "https://api.cerebras.ai/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {settings.CEREBRAS_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": getattr(settings, 'CEREBRAS_MODEL', 'llama-3.3-70b'),
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.7,
+                "max_tokens": max_tokens
+            }
+        )
+        response.raise_for_status()
+        data = response.json()
+        return data["choices"][0]["message"]["content"]
+    
     async def _call_groq(self, prompt: str, max_tokens: int) -> Optional[str]:
         """Call Groq API."""
-        # Run in thread pool since groq is sync
         loop = asyncio.get_event_loop()
         
         def _sync_call():
             completion = self._groq_client.chat.completions.create(
-                model="llama-3.1-70b-versatile",
+                model=getattr(settings, 'GROQ_MODEL', 'llama-3.3-70b-versatile'),
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=max_tokens,
                 temperature=0.7
@@ -106,13 +183,14 @@ class LLMClient:
         return await loop.run_in_executor(None, _sync_call)
     
     async def _call_gemini(self, prompt: str, max_tokens: int) -> Optional[str]:
-        """Call Gemini API."""
+        """Call Gemini API using new google.genai package."""
         loop = asyncio.get_event_loop()
         
         def _sync_call():
-            response = self._gemini_model.generate_content(
-                prompt,
-                generation_config={
+            response = self._gemini_client.models.generate_content(
+                model=getattr(settings, 'GEMINI_MODEL', 'gemini-2.0-flash'),
+                contents=prompt,
+                config={
                     "max_output_tokens": max_tokens,
                     "temperature": 0.7
                 }
@@ -131,6 +209,11 @@ class LLMClient:
             "My network is slow, please repeat."
         ]
         return random.choice(fallbacks)
+    
+    async def close(self):
+        """Close HTTP client."""
+        if self._httpx_client:
+            await self._httpx_client.aclose()
 
 
 class HoneypotAgent:
