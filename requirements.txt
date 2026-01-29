@@ -1,0 +1,23 @@
+# Core framework
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+
+# Data validation - use latest for Python 3.14 wheel support
+pydantic>=2.10.0
+pydantic-settings>=2.5.0
+
+# Environment and HTTP
+python-dotenv>=1.0.0
+httpx>=0.28.0
+tenacity>=9.0.0
+
+# LLM APIs
+groq>=0.12.0
+google-generativeai>=0.8.0
+
+# Optional: Redis for production
+# redis>=5.0.0
+
+# Testing
+pytest>=8.0.0
+pytest-asyncio>=0.24.0

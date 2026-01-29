@@ -1,0 +1,123 @@
+{
+  "message_hashes": {
+    "ed7d2267f8bf09b9": {
+      "count": 1,
+      "first_seen": "2026-01-29T16:12:18.926865",
+      "last_seen": "2026-01-29T16:12:18.926865",
+      "scam_types": [
+        "impersonation"
+      ]
+    },
+    "98dea763cbc9f833": {
+      "count": 1,
+      "first_seen": "2026-01-29T16:17:35.324213",
+      "last_seen": "2026-01-29T16:17:35.324213",
+      "scam_types": [
+        "job"
+      ]
+    },
+    "70d32cb14c967a5a": {
+      "count": 1,
+      "first_seen": "2026-01-29T16:27:28.686853",
+      "last_seen": "2026-01-29T16:27:28.686853",
+      "scam_types": [
+        "impersonation"
+      ]
+    },
+    "b20f6417db8ccae2": {
+      "count": 1,
+      "first_seen": "2026-01-29T16:27:47.946862",
+      "last_seen": "2026-01-29T16:27:47.946862",
+      "scam_types": [
+        "phishing"
+      ]
+    },
+    "47a6a495eac5af6b": {
+      "count": 1,
+      "first_seen": "2026-01-29T16:27:55.234736",
+      "last_seen": "2026-01-29T16:27:55.234736",
+      "scam_types": [
+        "lottery/impersonation"
+      ]
+    },
+    "4b4c8ea2f6f58cb7": {
+      "count": 1,
+      "first_seen": "2026-01-29T16:28:12.923782",
+      "last_seen": "2026-01-29T16:28:12.923782",
+      "scam_types": [
+        "job"
+      ]
+    },
+    "85b85550ca118ced": {
+      "count": 1,
+      "first_seen": "2026-01-29T16:37:27.152738",
+      "last_seen": "2026-01-29T16:37:27.152738",
+      "scam_types": [
+        "impersonation"
+      ]
+    },
+    "faa2bfef2f4c6eb2": {
+      "count": 1,
+      "first_seen": "2026-01-29T16:37:44.418442",
+      "last_seen": "2026-01-29T16:37:44.418442",
+      "scam_types": [
+        "lottery"
+      ]
+    },
+    "e1a27dfdf2b77479": {
+      "count": 1,
+      "first_seen": "2026-01-29T16:37:50.150950",
+      "last_seen": "2026-01-29T16:37:50.150950",
+      "scam_types": [
+        "phishing"
+      ]
+    },
+    "402c9b6f250953a3": {
+      "count": 1,
+      "first_seen": "2026-01-29T16:38:08.041854",
+      "last_seen": "2026-01-29T16:38:08.041854",
+      "scam_types": [
+        "impersonation"
+      ]
+    }
+  },
+  "phone_numbers": {},
+  "upi_ids": {},
+  "urls": {},
+  "keyword_combos": {
+    "aadhaar|arrest|immediately|rs|warrant": {
+      "count": 1,
+      "first_seen": "2026-01-29T16:12:18.926865",
+      "last_seen": "2026-01-29T16:12:18.926865",
+      "scam_types": [
+        "impersonation"
+      ]
+    },
+    "aadhaar|rs|transfer": {
+      "count": 1,
+      "first_seen": "2026-01-29T16:27:28.686853",
+      "last_seen": "2026-01-29T16:27:28.686853",
+      "scam_types": [
+        "impersonation"
+      ]
+    },
+    "pin|rs|upi": {
+      "count": 1,
+      "first_seen": "2026-01-29T16:27:47.946862",
+      "last_seen": "2026-01-29T16:27:47.946862",
+      "scam_types": [
+        "phishing"
+      ]
+    },
+    "pin|upi": {
+      "count": 1,
+      "first_seen": "2026-01-29T16:37:50.150950",
+      "last_seen": "2026-01-29T16:37:50.150950",
+      "scam_types": [
+        "phishing"
+      ]
+    }
+  },
+  "scammer_fingerprints": {},
+  "last_updated": "2026-01-29T16:38:08.042065"
+}

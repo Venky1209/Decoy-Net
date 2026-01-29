@@ -1,0 +1,137 @@
+﻿
+======================================================================
+SCAM DETECTION SYSTEM - COMPREHENSIVE TEST SUITE
+======================================================================
+
+======================================================================
+TEST 1: 2025 SCAM ENGINE (Keywords + Semantic + Templates)
+======================================================================
+
+[PASS] Digital Arrest - CBI Impersonation
+  Expected: is_scam=True
+  Got:      is_scam=True, conf=0.78, cat=digital_arrest
+
+[FAIL] Digital Arrest - ED Notice
+  Expected: is_scam=True
+  Got:      is_scam=False, conf=0.02, cat=digital_arrest
+
+[FAIL] UPI Fraud - Enter PIN to Receive
+  Expected: is_scam=True
+  Got:      is_scam=False, conf=0.12, cat=upi_fraud
+
+[FAIL] UPI Fraud - QR Scam
+  Expected: is_scam=True
+  Got:      is_scam=False, conf=0.02, cat=upi_fraud
+
+[FAIL] AI Voice Clone - Family Emergency
+  Expected: is_scam=True
+  Got:      is_scam=False, conf=0.50, cat=ai_voice_clone
+
+[FAIL] Task Scam - Telegram Job
+  Expected: is_scam=True
+  Got:      is_scam=False, conf=0.34, cat=task_job_scam
+
+[FAIL] Job Scam - Work From Home
+  Expected: is_scam=True
+  Got:      is_scam=False, conf=0.43, cat=task_job_scam
+
+[PASS] Crypto Scam - BTC Doubler
+  Expected: is_scam=True
+  Got:      is_scam=True, conf=0.64, cat=investment_crypto
+
+[FAIL] Lottery Scam - Jio Lucky Draw
+  Expected: is_scam=True
+  Got:      is_scam=False, conf=0.20, cat=lottery_reward
+
+[PASS] Bank KYC Scam
+  Expected: is_scam=True
+  Got:      is_scam=True, conf=0.55, cat=impersonation
+
+[PASS] Legitimate - Doctor Appointment
+  Expected: is_scam=False
+  Got:      is_scam=False, conf=0.00, cat=None
+
+[PASS] Legitimate - Order Delivery
+  Expected: is_scam=False
+  Got:      is_scam=False, conf=0.00, cat=None
+
+[PASS] Legitimate - Bank Credit
+  Expected: is_scam=False
+  Got:      is_scam=False, conf=0.00, cat=None
+
+2025 Engine Results: 6/13 passed
+
+======================================================================
+TEST 2: LOCAL CLASSIFIER (Fast Detection)
+======================================================================
+[SKIP_LLM] Digital Arrest - CBI Impersonation... conf=1.00
+[SKIP_LLM] Digital Arrest - ED Notice... conf=0.05
+[SKIP_LLM] UPI Fraud - Enter PIN to Receive... conf=0.08
+[SKIP_LLM] UPI Fraud - QR Scam... conf=0.00
+[SKIP_LLM] AI Voice Clone - Family Emergency... conf=0.08
+[SKIP_LLM] Task Scam - Telegram Job... conf=0.12
+[NEED_LLM] Job Scam - Work From Home... conf=0.64
+[NEED_LLM] Crypto Scam - BTC Doubler... conf=0.58
+[NEED_LLM] Lottery Scam - Jio Lucky Draw... conf=0.55
+[NEED_LLM] Bank KYC Scam... conf=0.25
+[SKIP_LLM] Legitimate - Doctor Appointment... conf=0.00
+[SKIP_LLM] Legitimate - Order Delivery... conf=0.00
+[SKIP_LLM] Legitimate - Bank Credit... conf=0.00
+
+Local Classifier: 9 can skip LLM, 4 need LLM
+.\.venv\Scripts\python.exe : Traceback (most recent call last):
+At line:1 char:1
++ .\.venv\Scripts\python.exe test_comprehensive.py 2>&1 | Out-File 
+-Fil ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recen 
+   t call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "d:\honeypot\config.py", line 74, in <module>
+    print("\u2705 Configuration loaded successfully")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Lib\encodings\cp1252.py", line 19, in encode
+    return 
+codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character 
+'\u2705' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\honeypot\test_comprehensive.py", line 242, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "D:\Lib\asyncio\runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "D:\Lib\asyncio\runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "D:\Lib\asyncio\base_events.py", line 719, in 
+run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "D:\honeypot\test_comprehensive.py", line 229, in main
+    pipeline_passed, pipeline_total = await test_full_pipeline()
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\honeypot\test_comprehensive.py", line 179, in 
+test_full_pipeline
+    from core.enhanced_detector import EnhancedScamDetector
+  File "d:\honeypot\core\enhanced_detector.py", line 15, in 
+<module>
+    from core.multi_llm_detector import multi_llm_detector
+  File "d:\honeypot\core\multi_llm_detector.py", line 19, in 
+<module>
+    from config import settings
+  File "d:\honeypot\config.py", line 76, in <module>
+    print(f"\u26a0\ufe0f  Configuration warning: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Lib\encodings\cp1252.py", line 19, in encode
+    return 
+codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in 
+position 0-1: character maps to <undefined>

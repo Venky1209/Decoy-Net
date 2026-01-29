@@ -1,0 +1,206 @@
+[
+    {
+        "name": "Banking Scam - Account Blocked",
+        "request": {
+            "sessionId": "test_banking_001",
+            "message": "Dear customer, your SBI account 1234567890123 has been blocked due to KYC verification pending. Share OTP immediately to unblock or your account will be permanently suspended.",
+            "conversationHistory": [],
+            "metadata": {
+                "source": "sms",
+                "language": "en"
+            }
+        },
+        "expected": {
+            "isScam": true,
+            "scamType": "banking",
+            "keywords": [
+                "blocked",
+                "kyc",
+                "otp",
+                "immediately",
+                "suspended"
+            ]
+        }
+    },
+    {
+        "name": "UPI Fraud - Payment Request",
+        "request": {
+            "sessionId": "test_upi_002",
+            "message": "This is Paytm support. We noticed suspicious activity on your account. To secure your funds, please transfer Rs. 1 to verify your identity at scammer123@ybl and share the screenshot.",
+            "conversationHistory": [],
+            "metadata": {
+                "source": "whatsapp",
+                "language": "en"
+            }
+        },
+        "expected": {
+            "isScam": true,
+            "scamType": "upi",
+            "extractedUPI": [
+                "scammer123@ybl"
+            ]
+        }
+    },
+    {
+        "name": "Lottery Scam",
+        "request": {
+            "sessionId": "test_lottery_003",
+            "message": "CONGRATULATIONS! You have won Rs. 50,00,000 in the WhatsApp Lottery. To claim your prize, pay processing fee of Rs. 5000 to 9876543210 immediately.",
+            "conversationHistory": [],
+            "metadata": {
+                "source": "whatsapp",
+                "language": "en"
+            }
+        },
+        "expected": {
+            "isScam": true,
+            "scamType": "lottery",
+            "extractedPhone": [
+                "9876543210"
+            ]
+        }
+    },
+    {
+        "name": "Phishing - Link Click",
+        "request": {
+            "sessionId": "test_phishing_004",
+            "message": "Your HDFC account password will expire today. Click http://hdfc-secure-login.xyz/verify to update your credentials immediately to avoid account suspension.",
+            "conversationHistory": [],
+            "metadata": {
+                "source": "email",
+                "language": "en"
+            }
+        },
+        "expected": {
+            "isScam": true,
+            "scamType": "phishing",
+            "extractedURLs": [
+                "http://hdfc-secure-login.xyz/verify"
+            ]
+        }
+    },
+    {
+        "name": "Job Scam",
+        "request": {
+            "sessionId": "test_job_005",
+            "message": "Work from home opportunity! Earn Rs. 50,000 per month with just 2 hours of work daily. No experience required. Pay Rs. 500 registration fee to start. Contact 8765432109.",
+            "conversationHistory": [],
+            "metadata": {
+                "source": "telegram",
+                "language": "en"
+            }
+        },
+        "expected": {
+            "isScam": true,
+            "scamType": "job"
+        }
+    },
+    {
+        "name": "Impersonation - Bank Officer",
+        "request": {
+            "sessionId": "test_impersonation_006",
+            "message": "I am calling from RBI Mumbai. There is a money laundering case registered against your account 9876123456789. You need to verify your details immediately or face arrest. Share your OTP now.",
+            "conversationHistory": [],
+            "metadata": {
+                "source": "phone",
+                "language": "en"
+            }
+        },
+        "expected": {
+            "isScam": true,
+            "scamType": "impersonation",
+            "tactics": [
+                "authority",
+                "fear",
+                "urgency"
+            ]
+        }
+    },
+    {
+        "name": "Legitimate Message - Bank Statement",
+        "request": {
+            "sessionId": "test_legit_007",
+            "message": "Your HDFC Bank statement for December 2024 is ready. Login to netbanking to view your statement. For support, call our 24x7 helpline.",
+            "conversationHistory": [],
+            "metadata": {
+                "source": "sms",
+                "language": "en"
+            }
+        },
+        "expected": {
+            "isScam": false
+        }
+    },
+    {
+        "name": "Multi-turn Banking Scam",
+        "request": {
+            "sessionId": "test_multiturn_008",
+            "message": "Yes sir, please transfer Rs 10000 to account number 12345678901234 IFSC SBIN0001234 to complete the process. Do it quickly before your account gets blocked forever.",
+            "conversationHistory": [
+                {
+                    "role": "user",
+                    "content": "Hello, I am from SBI Security Department. Your account has been compromised."
+                },
+                {
+                    "role": "assistant",
+                    "content": "Oh no! What happened to my account? I am very worried."
+                },
+                {
+                    "role": "user",
+                    "content": "Someone tried to hack your account. We need to verify your identity and secure your funds."
+                },
+                {
+                    "role": "assistant",
+                    "content": "Please help me sir. What should I do?"
+                }
+            ],
+            "metadata": {
+                "source": "phone",
+                "language": "en"
+            }
+        },
+        "expected": {
+            "isScam": true,
+            "extractedBankAccounts": [
+                "12345678901234"
+            ],
+            "extractedIFSC": [
+                "SBIN0001234"
+            ]
+        }
+    },
+    {
+        "name": "Hindi-English Mix Scam",
+        "request": {
+            "sessionId": "test_hindi_009",
+            "message": "Aapka account block ho gaya hai. Turant OTP bhejo 9999888877 pe. Jaldi karo nahi to paisa nahi milega.",
+            "conversationHistory": [],
+            "metadata": {
+                "source": "sms",
+                "language": "hi-en"
+            }
+        },
+        "expected": {
+            "isScam": true,
+            "extractedPhone": [
+                "9999888877"
+            ]
+        }
+    },
+    {
+        "name": "Tech Support Scam",
+        "request": {
+            "sessionId": "test_tech_010",
+            "message": "WARNING: Your computer has been infected with virus. Call Microsoft Support immediately at +91-9876543210 or your files will be deleted. Pay Rs 5000 for antivirus.",
+            "conversationHistory": [],
+            "metadata": {
+                "source": "popup",
+                "language": "en"
+            }
+        },
+        "expected": {
+            "isScam": true,
+            "scamType": "tech_support"
+        }
+    }
+]
