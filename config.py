@@ -24,13 +24,13 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     
     # LLM Model Configuration
-    PRIMARY_LLM: Literal["pollinations", "cerebras", "gemini", "groq"] = os.getenv("PRIMARY_LLM", "pollinations")
-    FALLBACK_LLM: Literal["pollinations", "cerebras", "gemini", "groq"] = os.getenv("FALLBACK_LLM", "gemini")
+    PRIMARY_LLM: Literal["pollinations", "cerebras", "gemini", "groq"] = os.getenv("PRIMARY_LLM", "pollinations")  # Default: Pollinations
+    FALLBACK_LLM: Literal["pollinations", "cerebras", "gemini", "groq"] = os.getenv("FALLBACK_LLM", "cerebras")    # Default: Cerebras
     
     # Model Names
     POLLINATIONS_MODEL: str = os.getenv("POLLINATIONS_MODEL", "openai")  # Uses default model
-    CEREBRAS_MODEL: str = os.getenv("CEREBRAS_MODEL", "llama-3.3-70b")  # or "gpt-oss-120b"
-    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+    CEREBRAS_MODEL: str = os.getenv("CEREBRAS_MODEL", "llama-3.3-70b")  # Llama 3.3
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3-flash-preview")  # As seen in model list
     GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
     
     # Callback Configuration
