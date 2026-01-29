@@ -14,6 +14,7 @@ tenacity>=9.0.0
 # LLM APIs
 groq>=0.12.0
 google-generativeai>=0.8.0
+google-genai>=0.2.0  # Required for new Gemini SDK (v1beta)
 
 # Optional: Redis for production
 # redis>=5.0.0
