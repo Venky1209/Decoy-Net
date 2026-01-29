@@ -67,7 +67,9 @@ settings = Settings()
 
 def validate_settings() -> bool:
     """Validate that all required settings are present"""
-    required = ["GROQ_API_KEY", "GEMINI_API_KEY", "API_KEY"]
+    # Only API_KEY is strictly required for startup. 
+    # LLM keys are checked per-provider when needed.
+    required = ["API_KEY"]
     missing = [key for key in required if not getattr(settings, key)]
     
     if missing:
