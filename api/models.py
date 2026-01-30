@@ -11,13 +11,43 @@ class MessageRole(str, Enum):
     USER = "user"
     ASSISTANT = "assistant"
     SYSTEM = "system"
+    SCAMMER = "scammer"  # Hackathon uses "scammer" as sender
 
 
 class ConversationMessage(BaseModel):
-    """Single message in conversation history."""
-    role: MessageRole
-    content: str
+    """Single message in conversation history.
+    
+    Supports both formats:
+    - Our format: role, content
+    - Hackathon format: sender, text
+    """
+    # Accept either format
+    role: Optional[str] = None
+    content: Optional[str] = None
+    sender: Optional[str] = None
+    text: Optional[str] = None
     timestamp: Optional[str] = None
+    
+    @model_validator(mode='before')
+    @classmethod
+    def normalize_fields(cls, data: Any) -> Any:
+        """Normalize sender/text to role/content format."""
+        if isinstance(data, dict):
+            # If sender is provided but not role, map it
+            if 'sender' in data and 'role' not in data:
+                data['role'] = data['sender']
+            # If text is provided but not content, map it
+            if 'text' in data and 'content' not in data:
+                data['content'] = data['text']
+        return data
+    
+    def get_content(self) -> str:
+        """Get message content regardless of field name."""
+        return self.content or self.text or ""
+    
+    def get_role(self) -> str:
+        """Get message role/sender regardless of field name."""
+        return self.role or self.sender or "user"
 
 
 class IncomingMessage(BaseModel):
@@ -43,14 +73,42 @@ class HoneypotRequest(BaseModel):
     Supports both formats:
     - Simple: {"message": "string"}
     - Hackathon: {"message": {"sender": "scammer", "text": "string", "timestamp": "..."}}
+    
+    Also accepts field name variations:
+    - sessionId or session_id
+    - message or text
+    - conversationHistory, conversation_history, or history
     """
-    sessionId: str = Field(..., description="Unique session identifier")
+    sessionId: str = Field(..., description="Unique session identifier", alias="session_id")
     message: Union[str, IncomingMessage] = Field(..., description="Current message")
     conversationHistory: Optional[List[Dict[str, Any]]] = Field(
         default_factory=list,
-        description="Previous conversation messages"
+        description="Previous conversation messages",
+        alias="conversation_history"
     )
     metadata: Optional[MessageMetadata] = None
+    
+    model_config = {"populate_by_name": True}  # Accept both field name and alias
+    
+    @model_validator(mode='before')
+    @classmethod
+    def handle_field_variations(cls, data: Any) -> Any:
+        """Handle various field name formats from different API clients."""
+        if isinstance(data, dict):
+            # Handle sessionId variations
+            if 'session_id' in data and 'sessionId' not in data:
+                data['sessionId'] = data.pop('session_id')
+            
+            # Handle message variations (text field instead of message)
+            if 'text' in data and 'message' not in data:
+                data['message'] = data.pop('text')
+            
+            # Handle conversationHistory variations
+            if 'conversation_history' in data and 'conversationHistory' not in data:
+                data['conversationHistory'] = data.pop('conversation_history')
+            elif 'history' in data and 'conversationHistory' not in data:
+                data['conversationHistory'] = data.pop('history')
+        return data
     
     def get_message_text(self) -> str:
         """Get message text regardless of format."""
