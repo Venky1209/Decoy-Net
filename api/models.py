@@ -54,7 +54,7 @@ class IncomingMessage(BaseModel):
     """Hackathon-format incoming message object."""
     sender: str  # "scammer" or "user"
     text: str
-    timestamp: Optional[str] = None
+    timestamp: Optional[Union[str, int]] = None  # Accept epoch ms (int) or ISO string
 
 
 class MessageMetadata(BaseModel):
