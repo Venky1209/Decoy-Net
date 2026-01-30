@@ -82,38 +82,22 @@ class LLMClient:
     
     async def generate(self, prompt: str, max_tokens: int = 256) -> str:
         """
-        Generate response using configured PRIMARY_LLM with FALLBACK_LLM.
+        Generate response using LLM providers.
+        Order: Pollinations → Cerebras → Groq → Gemini (Gemini is LAST fallback)
         """
-        primary = getattr(settings, 'PRIMARY_LLM', 'pollinations')
-        fallback = getattr(settings, 'FALLBACK_LLM', 'cerebras')
+        # Explicit order: Gemini is LAST
+        provider_order = ['pollinations', 'cerebras', 'groq', 'gemini']
         
-        # Try primary LLM
-        if primary in self._available_providers:
-            try:
-                response = await self._call_provider(primary, prompt, max_tokens)
-                if response:
-                    return response
-            except Exception as e:
-                logger.warning(f"{primary} failed, falling back to {fallback}: {e}")
-        
-        # Try fallback LLM
-        if fallback in self._available_providers:
-            try:
-                response = await self._call_provider(fallback, prompt, max_tokens)
-                if response:
-                    return response
-            except Exception as e:
-                logger.warning(f"{fallback} also failed: {e}")
-        
-        # Try any available provider
-        for provider in self._available_providers:
-            if provider not in [primary, fallback]:
+        for provider in provider_order:
+            if provider in self._available_providers:
                 try:
                     response = await self._call_provider(provider, prompt, max_tokens)
                     if response:
+                        logger.info(f"LLM response from {provider}")
                         return response
                 except Exception as e:
                     logger.warning(f"{provider} failed: {e}")
+                    continue
         
         # Final fallback - return a generic confused response
         return self._get_fallback_response()
@@ -131,22 +115,28 @@ class LLMClient:
         return None
     
     async def _call_pollinations(self, prompt: str, max_tokens: int) -> Optional[str]:
-        """Call Pollinations API - NO RATE LIMITS!"""
-        response = await self._httpx_client.post(
-            "https://text.pollinations.ai/openai",
-            headers={
-                "Authorization": f"Bearer {settings.POLLINATIONS_API_KEY}",
-                "Content-Type": "application/json"
-            },
-            json={
-                "messages": [{"role": "user", "content": prompt}],
-                "temperature": 0.7,
-                "max_tokens": max_tokens
-            }
-        )
+        """Call Pollinations API using /text/{prompt} endpoint - NO RATE LIMITS!"""
+        import urllib.parse
+        
+        # URL encode the prompt
+        encoded_prompt = urllib.parse.quote(prompt[:2000])  # Limit prompt length for URL
+        
+        # Use GET request with query params as per Pollinations docs
+        url = f"https://text.pollinations.ai/{encoded_prompt}"
+        params = {
+            "model": getattr(settings, 'POLLINATIONS_MODEL', 'openai'),
+            "temperature": 0.7,
+        }
+        
+        # Add API key if available
+        if getattr(settings, 'POLLINATIONS_API_KEY', None):
+            params["key"] = settings.POLLINATIONS_API_KEY
+        
+        response = await self._httpx_client.get(url, params=params, timeout=60.0)
         response.raise_for_status()
-        data = response.json()
-        return data["choices"][0]["message"]["content"]
+        
+        # Response is plain text
+        return response.text
     
     async def _call_cerebras(self, prompt: str, max_tokens: int) -> Optional[str]:
         """Call Cerebras API - Ultra-fast Llama 3.3 70B."""

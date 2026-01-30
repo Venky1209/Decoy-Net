@@ -217,26 +217,32 @@ class MultiLLMDetector:
     async def _detect_pollinations(self, message: str) -> LLMResponse:
         """Detect scam using Pollinations.ai - NO RATE LIMITS!"""
         import time
+        import urllib.parse
         start = time.time()
         
         try:
+            # Build the prompt for scam detection
+            prompt = SCAM_DETECTION_PROMPT.format(message=message)
+            encoded_prompt = urllib.parse.quote(prompt[:2000])
+            
+            # Use GET request with /text/{prompt} endpoint as per Pollinations docs
+            url = f"https://text.pollinations.ai/{encoded_prompt}"
+            params = {
+                "model": "openai",
+                "temperature": 0.1,
+                "json": "true",  # Request JSON response
+            }
+            
+            # Add API key if available
+            if self.pollinations_key:
+                params["key"] = self.pollinations_key
+            
             async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.post(
-                    "https://text.pollinations.ai/openai",
-                    headers={
-                        "Authorization": f"Bearer {self.pollinations_key}",
-                        "Content-Type": "application/json"
-                    },
-                    json={
-                        "messages": [{"role": "user", "content": SCAM_DETECTION_PROMPT.format(message=message)}],
-                        "temperature": 0.1,
-                        "max_tokens": 300
-                    }
-                )
+                response = await client.get(url, params=params)
                 response.raise_for_status()
-                data = response.json()
                 
-                result = self._parse_llm_response(data["choices"][0]["message"]["content"])
+                # Response is text (hopefully JSON formatted)
+                result = self._parse_llm_response(response.text)
                 elapsed = int((time.time() - start) * 1000)
                 
                 logger.info(f"Pollinations succeeded: is_scam={result.get('is_scam')}, conf={result.get('confidence')}, time={elapsed}ms")
