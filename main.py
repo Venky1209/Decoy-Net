@@ -10,8 +10,10 @@ An AI-powered honeypot system that:
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 
 from api.routes import router
 from api.middleware import APIKeyMiddleware, RequestLoggingMiddleware
@@ -94,6 +96,31 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+
+
+# Add validation error handler to log exact errors
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Log validation errors with full details for debugging."""
+    errors = exc.errors()
+    logger.error(f"Validation error for {request.method} {request.url.path}")
+    logger.error(f"Errors: {errors}")
+    
+    # Try to log the request body if available
+    try:
+        body = await request.body()
+        logger.error(f"Request body: {body.decode('utf-8')[:500]}")
+    except Exception:
+        pass
+    
+    return JSONResponse(
+        status_code=422,
+        content={
+            "error": "Validation failed",
+            "detail": errors,
+            "hint": "Required fields: sessionId (string), message (string or {sender, text, timestamp})"
+        }
+    )
 
 # Add CORS middleware
 app.add_middleware(
