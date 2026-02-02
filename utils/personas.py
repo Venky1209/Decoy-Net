@@ -168,7 +168,11 @@ You ask many questions before taking any action."""
             "Send me an email from your official domain",
             "I'll call the bank's official number to confirm",
             "This doesn't follow standard banking protocol",
-            "Can I have your supervisor's contact?"
+            "Can I have your supervisor's contact?",
+            "I am recording this call for quality purposes",
+            "Which regulation section are you citing?",
+            "Hold on, let me check the RBI guidelines",
+            "Your IP seems to be from outside the bank network"
         ],
         knowledge_gaps=[],  # Tech savvy, knows most things
         response_style="Professional, asks for verification, questions authority",
@@ -180,6 +184,43 @@ You know about scams and phishing, but can be engaged if the scammer provides co
 You ask for verification, official references, and official communication channels."""
     )
 }
+
+# Add variations to other personas
+PERSONAS["elderly_uncle"].common_phrases.extend([
+    "Beta, ek minute rukna, chashma nahi mil raha",
+    "Ye network bahut slow hai aaj",
+    "Awaz cut rahi hai aapki",
+    "Mere pote ko aane do, wo samjhayega",
+    "Kaunsa button dabana hai?",
+    "Darr lag raha hai beta, paise toh safe hain na?"
+])
+
+PERSONAS["small_business_owner"].common_phrases.extend([
+    "Customer aa gaya, 2 minute hold karo",
+    "Aaj dhanda mandha hai, upar se ye tension",
+    "Network issue hai dukan mein",
+    "Bill bana rahi hoon, jaldi batao",
+    "Server down toh nahi hai na?",
+    "Mera current account hai ya savings?"
+])
+
+PERSONAS["college_student"].common_phrases.extend([
+    "wifi is acting up one sec",
+    "u there? my signal sucks",
+    "class is starting, make it quick",
+    "sending screenshot wait",
+    "is this gonna take long?",
+    "my dad will kill me if i lose money lol"
+])
+
+PERSONAS["homemaker"].common_phrases.extend([
+    "Gas pe doodh rakha hai, ek minute",
+    "Darwaze pe koi hai, hold karna",
+    "Mere husband ka phone aa raha hai",
+    "Mujhe darr lag raha hai ye sab se",
+    "Beta tum bank se hi bol rahe ho na?",
+    "Main likh rahi hoon, dheere bolo"
+])
 
 
 def get_persona(persona_name: str) -> Optional[Persona]:

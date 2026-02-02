@@ -20,6 +20,10 @@ class ScamCategory(str, Enum):
     PHISHING = "phishing"                  # Persistent
     ROMANCE_SCAM = "romance_scam"          # Growing
     SIM_SWAP = "sim_swap"                  # Identity theft
+    COURIER_PARCEL = "courier_parcel"      # FedEx/DHL scams
+    TRAFFIC_CHALLAN = "traffic_challan"    # Fake e-challan
+    APK_MALWARE = "apk_malware"            # Malicious apps
+    CSR_FUNDING = "csr_funding"            # NGO fraud
 
 
 # ============================================
@@ -30,27 +34,38 @@ SCAM_KEYWORDS_2025 = {
     ScamCategory.DIGITAL_ARREST: [
         # Core digital arrest terms
         "digital arrest", "cyber arrest", "virtual arrest", "online arrest",
-        "video call arrest", "stay on video", "don't disconnect",
+        "video call arrest", "stay on video", "don't disconnect", "do not disconnect",
+        "video verification", "verification required",
         # Authority impersonation
-        "cbi officer", "cbi case", "ed notice", "enforcement directorate",
-        "cyber cell", "cyber crime branch", "ncb officer", "narcotics bureau",
-        "supreme court order", "high court notice", "court summons",
+        "cbi officer", "cbi case", "cbi cyber", "ed notice", "enforcement directorate",
+        "ed has", "ed officer", "ed frozen", " ed ", "ncb officer", "ncb",
+        "cyber cell", "cyber crime branch", "narcotics bureau", "narcotics control",
+        "supreme court order", "supreme court", "high court notice", "court summons",
+        "mumbai cyber", "delhi cyber", "inspector", "officer sharma", "officer verma",
         # Threats
-        "money laundering", "hawala transaction", "terror funding",
-        "illegal transaction", "suspicious activity detected",
+        "money laundering", "hawala", "hawala transaction", "terror funding",
+        "illegal transaction", "suspicious activity", "suspicious transaction",
         "your aadhaar linked", "your pan misused", "account under scanner",
+        "frozen", "account frozen", "has frozen", "non-bailable warrant",
+        "tax evasion", "drug trafficking", "imprisonment", "10 years",
         # Tactics
         "verification call", "identity verification", "stay on line",
-        "transfer to safe account", "rbi safe custody", "your money unsafe",
-        "immediate transfer required", "police station", "fir registered"
+        "transfer to safe", "rbi safe custody", "your money unsafe",
+        "secure the funds", "safe account", "government safe",
+        "immediate transfer", "transfer amount", "police station", "fir registered",
+        "cooperate", "do not leave", "do not inform", "settlement amount",
+        "skype", "stay on skype", "video call pe", "disconnect mat"
     ],
     
     ScamCategory.UPI_FRAUD: [
         # NPCI 2025 patterns
-        "enter pin to receive", "enter upi pin to accept",
-        "scan to receive money", "scan qr for payment",
-        "collect request", "payment request pending",
-        "refund to your account", "cashback credited scan to claim",
+        "enter pin to receive", "enter upi pin", "upi pin to receive",
+        "enter your upi pin", "share upi pin", "type pin",
+        "scan to receive", "scan qr", "scan this qr",
+        "qr code to receive", "scan qr for payment",
+        "collect request", "payment request pending", "payment request",
+        "refund pending", "refund of rs", "your refund",
+        "cashback credited", "cashback", "receive cashback",
         # Fake payment confirmations
         "payment of rs", "credited to your", "transaction successful",
         "payment confirmation", "screenshot attached",
@@ -58,7 +73,18 @@ SCAM_KEYWORDS_2025 = {
         "send to upi", "pay to upi id", "transfer to",
         # Fake apps
         "download our app", "use this link for payment",
-        "new upi app", "verify upi id"
+        "new upi app", "verify upi id",
+        # Click/Claim patterns
+        "click here to claim", "click to receive", "claim your",
+        "to receive the amount", "receive the amount",
+        "limited time offer", "limited time",
+        # OLX/Marketplace scams
+        "olx buyer", "olx seller", "advance via qr", "scan to receive advance",
+        # Utility bill scams
+        "electricity bill", "disconnected in", "bill overdue", "pay immediately",
+        # Collect request scams (AMAZON-REFUND style)
+        "enter pin to accept", "accept the payment", "amazon-refund", "bonus",
+        "received a payment request", "from amazon"
     ],
     
     ScamCategory.AI_VOICE_CLONE: [
@@ -69,22 +95,36 @@ SCAM_KEYWORDS_2025 = {
         "send money now", "western union", "wire transfer",
         # Voice verification red flags
         "is this really you", "sound different", "bad connection",
-        "can't video call", "phone problem", "borrowed phone"
+        "can't video call", "phone problem", "borrowed phone",
+        # Hindi patterns
+        "papa maine", "mummy ko mat batana", "turant bhejo",
+        "battery khatam", "jaldi karo", "hospital mein hoon",
+        "accident kar diya", "bail", "stuck at airport",
+        "don't tell mom", "don't tell dad", "don't tell papa",
+        "friend ka accident", "operation ke liye", "pareshan"
     ],
     
     ScamCategory.TASK_JOB_SCAM: [
         # Task-based scams (Telegram/WhatsApp)
         "daily task", "simple task", "earn per task", "task payment",
-        "like and subscribe job", "review task", "rating job",
-        "telegram channel join", "telegram group task",
+        "like and subscribe", "review task", "rating task", "rating tasks",
+        "telegram channel", "telegram group", "join our channel",
+        "join telegram", "on telegram", "doing simple",
         # Registration fees
         "registration fee", "joining fee", "activation fee", 
         "security deposit", "refundable deposit",
+        "pay rs", "pay ₹", "fee to start",
         # Fake promises
-        "earn 50000 per month", "earn daily", "guaranteed income",
+        "earn rs", "earn ₹", "50000 per month", "per month",
+        "earn daily", "start earning", "guaranteed income",
         "no investment required", "work 2 hours",
-        "part time job offer", "amazon job", "flipkart job",
-        "data entry job", "typing work", "copy paste job"
+        "part time job", "amazon job", "flipkart job",
+        "data entry", "typing work", "copy paste job",
+        "no experience", "simple rating",
+        # Hindi patterns
+        "video like karo", "like karo", "kamao", "roz", "ghante kaam",
+        "monthly pakka", "deposit do", "limited seats", "youtube like",
+        "per like", "paisa kamao", "earn karo"
     ],
     
     ScamCategory.INVESTMENT_CRYPTO: [
@@ -94,10 +134,15 @@ SCAM_KEYWORDS_2025 = {
         "binary trading", "forex trading", "stock tips",
         # Celebrity endorsement scams
         "elon musk", "mukesh ambani", "ratan tata",
-        "celebrity investment", "verified by",
+        "celebrity investment", "verified by", "celebrity endorsed",
         # Platform scams
         "new trading app", "exclusive platform", "early investor bonus",
-        "referral bonus", "deposit bonus", "withdrawal pending"
+        "referral bonus", "deposit bonus", "withdrawal pending",
+        # High return promises
+        "500% return", "monthly returns", "weekly returns",
+        "sebi registered", "premium group", "subscription",
+        "minimum investment", "withdraw profits", "withdraw anytime",
+        "expert signals", "vip membership", "trading signals"
     ],
     
     ScamCategory.IMPERSONATION: [
@@ -105,10 +150,18 @@ SCAM_KEYWORDS_2025 = {
         "rbi order", "rbi directive", "rbi notice",
         "npci notification", "npci order", "upi will be blocked",
         "account freeze order", "central bank notice",
-        # Bank impersonation
+        # Bank impersonation (SBI, HDFC, ICICI, etc.)
         "bank security alert", "account compromised",
         "suspicious login", "card blocked", "debit card expired",
         "credit limit exceeded", "emi bounce",
+        "sbi account", "hdfc bank", "icici", "axis bank", "pnb", "kotak",
+        "your account will be blocked", "blocked in 24", "blocked in 48",
+        "incomplete kyc", "kyc update", "update your kyc", "link your aadhaar",
+        "click this link", "update your aadhaar", "service disruption",
+        # OTP/CVV scams  
+        "share otp", "share cvv", "expiry date", "card number",
+        "verify cvv", "unblock now", "temporarily blocked",
+        "unusual login", "new device", "if not you",
         # Government
         "income tax refund", "gst refund", "pm kisan yojana",
         "government scheme", "subsidy amount"
@@ -116,12 +169,23 @@ SCAM_KEYWORDS_2025 = {
     
     ScamCategory.LOTTERY_REWARD: [
         # Modern lottery scams
-        "jio lottery", "airtel lucky draw", "amazon lucky draw",
+        "jio lottery", "jio number won", "jio lucky",
+        "airtel lucky draw", "amazon lucky draw",
         "flipkart winner", "google lottery", "whatsapp lottery",
         "iphone winner", "car winner", "bike winner",
+        "lucky draw", "our lucky draw", "in lucky draw",
+        "won rs", "won ₹", "lakh", "25 lakh", "50 lakh",
+        "your number won", "number has won", "you won",
+        "congratulations", "winner", "prize",
         # Processing fees
-        "processing fee", "tax deduction", "courier charge",
-        "insurance fee", "gst charges", "claim charges"
+        "processing fee", "pay processing", "pay rs", "pay ₹",
+        "tax deduction", "courier charge", "to claim your",
+        "insurance fee", "gst charges", "claim charges",
+        "contact now", "claim your prize", "claim prize",
+        # International lottery patterns
+        "won $", "usd", "dollars", "million", "1,000,000",
+        "transfer fee", "western union", "money transfer",
+        "send name", "send address", "lottery code", "lottery winner"
     ],
     
     ScamCategory.PHISHING: [
@@ -131,7 +195,14 @@ SCAM_KEYWORDS_2025 = {
         "reset password now", "confirm identity",
         "click to verify", "tap to confirm",
         # Fake links
-        "bit.ly", "tinyurl", "short link", "click below"
+        "bit.ly", "tinyurl", "short link", "click below",
+        # Tech support scams
+        "microsoft security", "microsoft alert", "microsoft support",
+        "windows license", "computer compromised", "pc at risk",
+        "call toll-free", "call immediately", "technician",
+        "anydesk", "teamviewer", "remote access",
+        "hackers may steal", "security patch", ".exe",
+        "lifetime license", "renew now"
     ],
     
     ScamCategory.SIM_SWAP: [
@@ -140,6 +211,50 @@ SCAM_KEYWORDS_2025 = {
         "sim replacement", "port your number",
         "aadhaar otp", "verify with otp", "share otp",
         "one time password", "6 digit code"
+    ],
+    
+    ScamCategory.COURIER_PARCEL: [
+        # Courier impersonation (FedEx, DHL, India Post)
+        "fedex alert", "fedex parcel", "fedex", "dhl delivery", "dhl package", "dhl",
+        "india post", "speed post", "parcel seized", "parcel intercepted",
+        "illegal items", "fake passports", "banned drugs", "contraband",
+        "customs officer", "customs seized", "customs helpline", "customs",
+        "mumbai airport", "delhi airport", "airport customs", "airport",
+        "criminal charges", "press 1", "press 2",
+        "reference number", "tracking number",
+        "package from china", "parcel from", "delivery failed",
+        "your parcel", "containing illegal", "avoid arrest", "notified"
+    ],
+    
+    ScamCategory.TRAFFIC_CHALLAN: [
+        # E-challan scams (TOI Jan 2026)
+        "traffic challan", "e-challan", "challan alert",
+        "vehicle violated", "violated signal", "over-speeding", "overspeeding",
+        "fine rs", "fine ₹", "penalty rs", "penalty ₹", "penalty:",
+        "license suspended", "license may be", "court case", "pay now to avoid",
+        "echallan-gov", "paytm.challan", "challan.pay",
+        "your vehicle", "vehicle was caught", "caught over", "download challan",
+        "challan notice", "e-challan notice"
+    ],
+    
+    ScamCategory.APK_MALWARE: [
+        # Malicious APK downloads (TOI Jan 2026)
+        "download apk", ".apk", "install app",
+        "itr-refund.apk", "kisanpay.apk", "cryptotrading.apk",
+        "download official", "government app", "refund app",
+        "link aadhaar", "link bank account", "verify bank details",
+        "pm kisan", "income tax app", "gst app"
+    ],
+    
+    ScamCategory.CSR_FUNDING: [
+        # CSR/NGO fraud (TOI Jan 2026 - 1.31 Cr loss)
+        "csr funding", "corporate funding", "ngo funding",
+        "crore funding", "liaison officer", "government liaison",
+        "processing fee for funding", "eligible for funding",
+        # FD Fraud patterns (TOI Jan 2026)
+        "special fd", "fd offer", "12% interest", "senior citizens",
+        "doorstep service", "relationship manager", "limited period scheme",
+        "fixed deposit offer", "high interest fd"
     ]
 }
 
@@ -166,7 +281,17 @@ SEMANTIC_PATTERNS = [
         category=ScamCategory.DIGITAL_ARREST,
         required_categories=["authority", "threat", "money_demand"],
         optional_categories=["urgency", "video_call"],
-        min_required=3,
+        min_required=2,  # Lowered from 3
+        confidence_boost=0.45
+    ),
+    
+    # Digital Arrest Pattern - Video Call Variant
+    SemanticPattern(
+        name="digital_arrest_video",
+        category=ScamCategory.DIGITAL_ARREST,
+        required_categories=["authority", "video_call"],
+        optional_categories=["money_demand", "threat"],
+        min_required=2,
         confidence_boost=0.4
     ),
     
@@ -176,8 +301,18 @@ SEMANTIC_PATTERNS = [
         category=ScamCategory.UPI_FRAUD,
         required_categories=["upi_action", "pin_request"],
         optional_categories=["receive_money", "urgency"],
+        min_required=1,  # Lowered - even one is suspicious
+        confidence_boost=0.4
+    ),
+    
+    # UPI Refund/Cashback Scam Pattern
+    SemanticPattern(
+        name="upi_refund_scam",
+        category=ScamCategory.UPI_FRAUD,
+        required_categories=["receive_money", "upi_action"],
+        optional_categories=["urgency", "pin_request"],
         min_required=2,
-        confidence_boost=0.35
+        confidence_boost=0.4
     ),
     
     # Voice Clone Emergency Pattern
@@ -197,7 +332,17 @@ SEMANTIC_PATTERNS = [
         required_categories=["job_offer", "easy_money", "fee_required"],
         optional_categories=["telegram", "whatsapp"],
         min_required=2,
-        confidence_boost=0.3
+        confidence_boost=0.35
+    ),
+    
+    # Task Scam Pattern - Telegram Variant
+    SemanticPattern(
+        name="task_telegram_scam",
+        category=ScamCategory.TASK_JOB_SCAM,
+        required_categories=["job_offer", "telegram", "fee_required"],
+        optional_categories=["easy_money"],
+        min_required=2,
+        confidence_boost=0.35
     ),
     
     # Investment Fraud Pattern
@@ -209,33 +354,81 @@ SEMANTIC_PATTERNS = [
         min_required=2,
         confidence_boost=0.35
     ),
+    
+    # Lottery/Prize Scam Pattern
+    SemanticPattern(
+        name="lottery_scam",
+        category=ScamCategory.LOTTERY_REWARD,
+        required_categories=["lottery", "fee_required"],
+        optional_categories=["urgency"],
+        min_required=2,
+        confidence_boost=0.4
+    ),
+    
+    # Courier/Parcel Scam Pattern
+    SemanticPattern(
+        name="courier_parcel_scam",
+        category=ScamCategory.COURIER_PARCEL,
+        required_categories=["courier", "threat"],
+        optional_categories=["authority", "urgency"],
+        min_required=2,
+        confidence_boost=0.4
+    ),
+    
+    # Bank Phishing Pattern
+    SemanticPattern(
+        name="bank_phishing_scam",
+        category=ScamCategory.IMPERSONATION,
+        required_categories=["bank", "urgency"],
+        optional_categories=["click_action", "credential_request"],
+        min_required=2,
+        confidence_boost=0.4
+    ),
+    
+    # Tech Support Scam Pattern
+    SemanticPattern(
+        name="tech_support_scam",
+        category=ScamCategory.PHISHING,
+        required_categories=["tech_support", "urgency"],
+        optional_categories=["fee_required", "remote_access"],
+        min_required=2,
+        confidence_boost=0.4
+    ),
 ]
 
 # Category indicators for semantic matching
 SEMANTIC_INDICATORS = {
-    "authority": ["police", "cbi", "ed", "court", "rbi", "officer", "government", "ministry", "judge"],
-    "threat": ["arrest", "jail", "fir", "case", "warrant", "summons", "freeze", "block", "legal action"],
-    "money_demand": ["transfer", "send", "pay", "deposit", "amount", "rupees", "rs", "₹"],
-    "urgency": ["immediately", "urgent", "now", "asap", "24 hours", "today", "hurry"],
-    "video_call": ["video call", "video verification", "stay on video", "don't disconnect"],
-    "upi_action": ["upi", "scan", "qr", "collect", "request", "paytm", "phonepe", "gpay"],
-    "pin_request": ["enter pin", "upi pin", "otp", "share otp", "6 digit"],
-    "receive_money": ["receive", "credit", "refund", "cashback", "receive money"],
+    "authority": ["police", "cbi", "ed", "court", "rbi", "officer", "government", "ministry", "judge", "enforcement", "customs", "ncb", "narcotics"],
+    "threat": ["arrest", "jail", "fir", "case", "warrant", "summons", "freeze", "frozen", "block", "legal action", "criminal", "suspended", "seized"],
+    "money_demand": ["transfer", "send", "pay", "deposit", "amount", "rupees", "rs", "₹", "secure", "funds"],
+    "urgency": ["immediately", "urgent", "now", "asap", "24 hours", "48 hours", "today", "hurry", "limited time", "within 2 hours"],
+    "video_call": ["video call", "video verification", "stay on video", "don't disconnect", "do not disconnect", "verification required"],
+    "upi_action": ["upi", "scan", "qr", "qr code", "collect", "request", "paytm", "phonepe", "gpay", "pin"],
+    "pin_request": ["enter pin", "upi pin", "otp", "share otp", "6 digit", "your pin", "cvv", "expiry"],
+    "receive_money": ["receive", "credit", "refund", "cashback", "receive money", "pending", "claim", "accept"],
     "emergency": ["emergency", "accident", "hospital", "urgent", "help needed", "critical"],
     "family": ["papa", "mummy", "dad", "mom", "son", "daughter", "brother", "sister", "uncle", "family"],
     "money_request": ["send money", "transfer", "need money", "help with money", "lend"],
     "secrecy": ["don't tell", "keep secret", "between us", "don't inform", "quietly"],
     "hospital": ["hospital", "admitted", "surgery", "treatment", "medical"],
     "accident": ["accident", "injured", "hurt", "crashed", "hit"],
-    "job_offer": ["job", "work from home", "vacancy", "hiring", "recruitment", "offer"],
-    "easy_money": ["earn", "daily income", "guaranteed", "easy money", "lakhs per month", "50000"],
-    "fee_required": ["registration fee", "deposit", "pay first", "joining fee", "activation"],
-    "telegram": ["telegram", "channel", "group", "join telegram"],
+    "job_offer": ["job", "work from home", "vacancy", "hiring", "recruitment", "offer", "task", "tasks", "rating"],
+    "easy_money": ["earn", "daily income", "guaranteed", "easy money", "per month", "50000", "start earning"],
+    "fee_required": ["registration fee", "deposit", "pay first", "joining fee", "activation", "fee to start", "processing fee"],
+    "telegram": ["telegram", "channel", "group", "join telegram", "our channel", "on telegram"],
     "whatsapp": ["whatsapp", "wa.me", "message on whatsapp"],
     "investment": ["invest", "investment", "trading", "returns", "profit", "portfolio"],
     "guaranteed_returns": ["guaranteed", "100%", "fixed return", "assured", "no risk", "double"],
     "celebrity": ["elon musk", "ambani", "tata", "celebrity", "verified", "famous"],
-    "crypto": ["bitcoin", "btc", "crypto", "blockchain", "nft", "ethereum"]
+    "crypto": ["bitcoin", "btc", "crypto", "blockchain", "nft", "ethereum"],
+    "lottery": ["congratulations", "won", "winner", "prize", "lucky draw", "lottery", "lakh", "claim"],
+    # New indicators for expanded scam types
+    "courier": ["fedex", "dhl", "india post", "speed post", "parcel", "package", "delivery", "customs", "airport", "seized"],
+    "bank": ["sbi", "hdfc", "icici", "axis", "pnb", "kotak", "bank", "account", "blocked", "kyc"],
+    "click_action": ["click", "tap", "verify", "link", "update", "confirm"],
+    "credential_request": ["otp", "pin", "cvv", "password", "card number", "expiry", "aadhaar"],
+    "tech_support": ["microsoft", "windows", "computer", "virus", "hacked", "compromised", "support", "technician"],
+    "remote_access": ["anydesk", "teamviewer", "remote", "connect", "access"],
 }
 
 
@@ -455,7 +648,7 @@ class ScamDetectionEngine2025:
         )
         
         # If whitelist matched and confidence is low, mark as not scam
-        is_scam = combined_confidence >= 0.5 and whitelist_reduction < 0.3
+        is_scam = combined_confidence >= 0.4 and whitelist_reduction < 0.3
         
         return {
             "is_scam": is_scam,

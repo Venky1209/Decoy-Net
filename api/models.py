@@ -75,11 +75,11 @@ class HoneypotRequest(BaseModel):
     - Hackathon: {"message": {"sender": "scammer", "text": "string", "timestamp": "..."}}
     
     Also accepts field name variations:
-    - sessionId or session_id
+    - sessionId or session_id (optional - auto-generated if not provided)
     - message or text
     - conversationHistory, conversation_history, or history
     """
-    sessionId: str = Field(..., description="Unique session identifier", alias="session_id")
+    sessionId: Optional[str] = Field(default=None, description="Unique session identifier", alias="session_id")
     message: Union[str, IncomingMessage] = Field(..., description="Current message")
     conversationHistory: Optional[List[Dict[str, Any]]] = Field(
         default_factory=list,
@@ -98,6 +98,11 @@ class HoneypotRequest(BaseModel):
             # Handle sessionId variations
             if 'session_id' in data and 'sessionId' not in data:
                 data['sessionId'] = data.pop('session_id')
+            
+            # Auto-generate sessionId if not provided
+            if not data.get('sessionId') and not data.get('session_id'):
+                import uuid
+                data['sessionId'] = str(uuid.uuid4())
             
             # Handle message variations (text field instead of message)
             if 'text' in data and 'message' not in data:
@@ -174,6 +179,15 @@ class CallbackPayload(BaseModel):
     intelligenceQualityScore: float
     agentNotes: str
     timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+
+
+class GUVISimpleResponse(BaseModel):
+    """EXACT response format from Problem Statement Section 8.
+    
+    The PS specifies: {"status": "success", "reply": "..."}
+    """
+    status: str = "success"
+    reply: str = Field(..., description="AI Agent's human-like response")
 
 
 class HealthResponse(BaseModel):

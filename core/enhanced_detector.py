@@ -77,6 +77,7 @@ class EnhancedScamDetector:
     3. Context analysis
     4. Pattern memory (remembers past scams)
     5. Multi-LLM ensemble (consensus from multiple AIs)
+    6. Agent memory (learned patterns from runtime)
     """
     
     # Scoring weights (tuned for high LLM accuracy)
@@ -91,6 +92,18 @@ class EnhancedScamDetector:
     def __init__(self, use_llm: bool = True, use_memory: bool = True):
         self.use_llm = use_llm
         self.use_memory = use_memory
+        self._agent_memory = None  # Lazy load
+    
+    @property
+    def agent_memory(self):
+        """Lazy load agent memory for learned patterns."""
+        if self._agent_memory is None:
+            try:
+                from core.agent_memory import get_agent_memory
+                self._agent_memory = get_agent_memory()
+            except Exception as e:
+                logger.warning(f"Could not load agent memory: {e}")
+        return self._agent_memory
     
     async def detect(
         self,
@@ -134,6 +147,60 @@ class EnhancedScamDetector:
         memory_result = {"boost": 0.0, "matches": [], "times_seen": 0}
         if self.use_memory and intelligence:
             memory_result = self._check_pattern_memory(message, intelligence)
+        
+        # Agent Memory Check - Learned Patterns from Runtime
+        learned_pattern = None
+        if self.agent_memory:
+            learned_pattern = self.agent_memory.check_learned_patterns(message)
+            if learned_pattern:
+                logger.info(f"[LEARNED PATTERN] Matched: {learned_pattern['scam_type']}")
+                # Boost memory score if learned pattern matches
+                memory_result["boost"] += 0.15
+                memory_result["times_seen"] += learned_pattern.get("times_seen", 1)
+        
+        # Check for known scammer identifiers
+        known_scammer = False
+        verification_result = None
+        
+        if intelligence:
+            # Use ScammerVerifier for comprehensive verification
+            try:
+                from core.scammer_verifier import scammer_verifier
+                verification_result = scammer_verifier.verify_all(intelligence)
+                
+                # If verification found suspicious identifiers, boost confidence
+                if verification_result["summary"]["total_suspicious"] > 0:
+                    known_scammer = True
+                    # Calculate boost based on risk level
+                    risk_boosts = {"low": 0.05, "medium": 0.15, "high": 0.25, "critical": 0.35}
+                    verification_boost = risk_boosts.get(verification_result["summary"]["highest_risk"], 0)
+                    memory_result["boost"] += verification_boost
+                    
+                    logger.info(
+                        f"[VERIFICATION] {verification_result['summary']['total_suspicious']} suspicious identifiers found "
+                        f"(risk: {verification_result['summary']['highest_risk']}, boost: +{verification_boost:.2f})"
+                    )
+                    
+                    # Log critical alerts
+                    for alert in verification_result["summary"]["critical_alerts"]:
+                        logger.warning(f"[CRITICAL ALERT] {alert}")
+            except Exception as e:
+                logger.debug(f"Scammer verification error (non-critical): {e}")
+            
+            # Also check agent memory for known scammers (learned from past conversations)
+            if self.agent_memory:
+                for phone in intelligence.get("phone_numbers", []):
+                    is_known, times = self.agent_memory.is_known_scammer(phone=phone)
+                    if is_known:
+                        known_scammer = True
+                        memory_result["boost"] += min(0.2, times * 0.05)
+                        logger.info(f"[KNOWN SCAMMER] Phone {phone} seen {times} times in past conversations")
+                for upi in intelligence.get("upi_ids", []):
+                    is_known, times = self.agent_memory.is_known_scammer(upi=upi)
+                    if is_known:
+                        known_scammer = True
+                        memory_result["boost"] += min(0.2, times * 0.05)
+                        logger.info(f"[KNOWN SCAMMER] UPI {upi} seen {times} times in past conversations")
         
         # ============================================
         # PARALLEL STAGE 2: LLM Ensemble (async API call)

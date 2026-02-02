@@ -16,7 +16,10 @@ from utils.patterns import (
     IFSC_PATTERN,
     URGENCY_KEYWORDS,
     FINANCIAL_KEYWORDS,
-    THREAT_KEYWORDS
+    URGENCY_KEYWORDS,
+    FINANCIAL_KEYWORDS,
+    THREAT_KEYWORDS,
+    CRYPTO_WALLET_PATTERNS
 )
 
 logger = logging.getLogger(__name__)
@@ -49,7 +52,9 @@ class IntelligenceExtractor:
         "urls": 6,
         "emails": 4,
         "ifsc_codes": 4,
-        "keywords": 1
+        "ifsc_codes": 4,
+        "keywords": 1,
+        "crypto_wallets": 8
     }
     
     def __init__(self):
@@ -58,7 +63,9 @@ class IntelligenceExtractor:
             "upi_ids": set(),
             "phone_numbers": set(),
             "urls": set(),
-            "emails": set()
+            "urls": set(),
+            "emails": set(),
+            "crypto_wallets": set()
         }
     
     def extract_all(self, message: str, conversation_history: Optional[List] = None) -> Dict[str, Any]:
@@ -78,7 +85,9 @@ class IntelligenceExtractor:
             "urls": self.extract_urls(all_text),
             "emails": self.extract_emails(all_text),
             "ifsc_codes": self.extract_ifsc_codes(all_text),
+            "ifsc_codes": self.extract_ifsc_codes(all_text),
             "keywords": self.extract_keywords(all_text),
+            "crypto_wallets": self.extract_crypto_wallets(all_text),
             "confidence_scores": {}
         }
         
@@ -142,7 +151,30 @@ class IntelligenceExtractor:
     def extract_emails(self, text: str) -> List[str]:
         """Extract email addresses from text."""
         matches = EMAIL_PATTERN.findall(text)
-        return list(set(matches))
+        return list(matches)
+
+    def extract_crypto_wallets(self, text: str) -> List[str]:
+        """Extract crypto wallet addresses (BTC, ETH, TRON)."""
+        wallets = set()
+        for pattern in CRYPTO_WALLET_PATTERNS:
+            matches = pattern.findall(text)
+            for match in matches:
+                # Handle Bitcoin pattern tuple group
+                if isinstance(match, tuple):
+                    match = match[0]
+                wallets.add(match)
+        
+        # New wallets only
+        new_wallets = []
+        for wallet in wallets:
+            if wallet not in self._seen_entities["crypto_wallets"]:
+                self._seen_entities["crypto_wallets"].add(wallet)
+                new_wallets.append(wallet)
+        
+        if new_wallets:
+            logger.info(f"Extracted crypto wallets: {new_wallets}")
+        
+        return new_wallets
     
     def extract_ifsc_codes(self, text: str) -> List[str]:
         """Extract IFSC codes."""

@@ -1,6 +1,12 @@
 """
-Honeypot AI Agent with LLM integration.
+Honeypot AI Agent with LLM integration and Memory System.
 Manages persona, generates responses, and implements conversation strategies.
+
+Features:
+- Multi-LLM fallback (Pollinations → Cerebras → Groq → Gemini)
+- Response caching (avoid repeated LLM calls)
+- Pattern learning (improve accuracy over time)
+- Engagement memory (remember what works)
 """
 import asyncio
 import random
@@ -26,12 +32,17 @@ class AgentResponse:
     notes: str
     strategy_used: str
     breadcrumb_used: Optional[str] = None
+    from_cache: bool = False  # Track if response was cached
 
 
 class LLMClient:
     """
-    Multi-model LLM client with fallback support.
-    Priority: Pollinations → Cerebras → Groq → Gemini (configurable via PRIMARY_LLM/FALLBACK_LLM)
+    Multi-model LLM client with fallback support and MEMORY.
+    
+    Features:
+    - Response caching (avoid repeated LLM calls)
+    - Multi-provider fallback
+    - Learning from successful engagements
     """
     
     def __init__(self):
@@ -39,7 +50,16 @@ class LLMClient:
         self._gemini_client = None
         self._httpx_client = None
         self._available_providers = []
+        self._memory = None  # Lazy load
         self._init_clients()
+    
+    @property
+    def memory(self):
+        """Lazy load agent memory."""
+        if self._memory is None:
+            from core.agent_memory import get_agent_memory
+            self._memory = get_agent_memory()
+        return self._memory
     
     def _init_clients(self):
         """Initialize LLM clients based on available API keys."""
@@ -80,20 +100,56 @@ class LLMClient:
             except Exception as e:
                 logger.warning(f"Failed to initialize Gemini: {e}")
     
-    async def generate(self, prompt: str, max_tokens: int = 256) -> str:
+    async def generate(
+        self, 
+        prompt: str, 
+        max_tokens: int = 256, 
+        session_id: str = None,
+        message: str = None,
+        scam_type: str = None,
+        persona: str = None
+    ) -> str:
         """
-        Generate response using LLM providers.
-        Order: Pollinations → Cerebras → Groq → Gemini (Gemini is LAST fallback)
+        Generate response using LLM providers WITH CACHING.
+        
+        1. Check response cache for similar message
+        2. If not cached, call LLM providers
+        3. Cache the response for future use
         """
-        # Explicit order: Gemini is LAST
+        # 1. Check cache first (if we have message context)
+        if message and scam_type:
+            cached = self.memory.get_cached_response(message, scam_type, persona)
+            if cached:
+                logger.info(f"[CACHE HIT] Using cached response for {scam_type}")
+                # Add slight variation to cached response
+                return self._add_variation(cached)
+        
+        # 2. Check if we have a successful template for this scam type
+        if scam_type:
+            template = self.memory.get_best_response_template(scam_type)
+            if template and random.random() < 0.3:  # 30% chance to use template
+                logger.info(f"[TEMPLATE] Using successful template for {scam_type}")
+                return self._add_variation(template)
+        
+        # 3. Call LLM providers (Priority: Pollinations → Cerebras → Groq → Gemini)
         provider_order = ['pollinations', 'cerebras', 'groq', 'gemini']
         
         for provider in provider_order:
             if provider in self._available_providers:
                 try:
-                    response = await self._call_provider(provider, prompt, max_tokens)
+                    response = await self._call_provider(provider, prompt, max_tokens, session_id=session_id)
                     if response:
                         logger.info(f"LLM response from {provider}")
+                        
+                        # 4. Cache the response for future use
+                        if message and scam_type:
+                            self.memory.cache_response(
+                                message=message,
+                                scam_type=scam_type,
+                                persona=persona or "default",
+                                response=response
+                            )
+                        
                         return response
                 except Exception as e:
                     logger.warning(f"{provider} failed: {e}")
@@ -102,41 +158,74 @@ class LLMClient:
         # Final fallback - return a generic confused response
         return self._get_fallback_response()
     
-    async def _call_provider(self, provider: str, prompt: str, max_tokens: int) -> Optional[str]:
-        """Route to appropriate provider."""
-        if provider == 'pollinations':
-            return await self._call_pollinations(prompt, max_tokens)
-        elif provider == 'cerebras':
-            return await self._call_cerebras(prompt, max_tokens)
-        elif provider == 'groq':
-            return await self._call_groq(prompt, max_tokens)
-        elif provider == 'gemini':
-            return await self._call_gemini(prompt, max_tokens)
-        return None
+    def _add_variation(self, response: str) -> str:
+        """Add slight variation to cached response to seem more natural."""
+        # Add random filler/starter
+        starters = [
+            "", "", "",  # Often no change
+            "Hmm... ",
+            "Arre, ",
+            "Acha, ",
+            "Oh, ",
+        ]
+        
+        # Add random ending variation
+        endings = [
+            "",
+            "?",
+            " na?",
+            "...",
+        ]
+        
+        varied = random.choice(starters) + response
+        if not varied.endswith(('?', '.', '!')):
+            varied += random.choice(endings)
+        
+        return varied
+    
+    async def _call_provider(self, provider: str, prompt: str, max_tokens: int, session_id: str = None) -> Optional[str]:
+        """Call a specific LLM provider directly."""
+        try:
+            if provider == 'pollinations':
+                return await self._call_pollinations(prompt, max_tokens)
+            elif provider == 'cerebras':
+                return await self._call_cerebras(prompt, max_tokens)
+            elif provider == 'groq':
+                return await self._call_groq(prompt, max_tokens)
+            elif provider == 'gemini':
+                return await self._call_gemini(prompt, max_tokens)
+            elif provider == 'local':
+                return await self._call_local(prompt, max_tokens)
+            elif provider == 'together':
+                return await self._call_together(prompt, max_tokens)
+            return None
+        except Exception as e:
+            logger.error(f"Provider {provider} failed: {e}")
+            return None
     
     async def _call_pollinations(self, prompt: str, max_tokens: int) -> Optional[str]:
-        """Call Pollinations API using /text/{prompt} endpoint - NO RATE LIMITS!"""
-        import urllib.parse
+        """Call Pollinations API using OpenAI-compatible endpoint."""
+        # Use POST to OpenAI-compatible endpoint (new gen.pollinations.ai API)
+        url = "https://gen.pollinations.ai/v1/chat/completions"
         
-        # URL encode the prompt
-        encoded_prompt = urllib.parse.quote(prompt[:2000])  # Limit prompt length for URL
+        # Set up headers with Bearer token auth
+        headers = {"Content-Type": "application/json"}
+        if getattr(settings, 'POLLINATIONS_API_KEY', None):
+            headers["Authorization"] = f"Bearer {settings.POLLINATIONS_API_KEY}"
         
-        # Use GET request with query params as per Pollinations docs
-        url = f"https://text.pollinations.ai/{encoded_prompt}"
-        params = {
-            "model": getattr(settings, 'POLLINATIONS_MODEL', 'openai'),
+        payload = {
+            "model": getattr(settings, 'POLLINATIONS_MODEL', 'openai'),  # OpenAI model via Pollinations
+            "messages": [{"role": "user", "content": prompt}],
             "temperature": 0.7,
+            "max_tokens": max_tokens
         }
         
-        # Add API key if available
-        if getattr(settings, 'POLLINATIONS_API_KEY', None):
-            params["key"] = settings.POLLINATIONS_API_KEY
-        
-        response = await self._httpx_client.get(url, params=params, timeout=60.0)
+        response = await self._httpx_client.post(url, json=payload, headers=headers, timeout=60.0)
         response.raise_for_status()
         
-        # Response is plain text
-        return response.text
+        # Parse OpenAI-compatible response
+        data = response.json()
+        return data["choices"][0]["message"]["content"]
     
     async def _call_cerebras(self, prompt: str, max_tokens: int) -> Optional[str]:
         """Call Cerebras API - Ultra-fast Llama 3.3 70B."""
@@ -178,7 +267,7 @@ class LLMClient:
         
         def _sync_call():
             response = self._gemini_client.models.generate_content(
-                model=getattr(settings, 'GEMINI_MODEL', 'gemini-2.0-flash'),
+                model=getattr(settings, 'GEMINI_MODEL', 'gemini-3-flash-preview'),
                 contents=prompt,
                 config={
                     "max_output_tokens": max_tokens,
@@ -188,6 +277,43 @@ class LLMClient:
             return response.text
         
         return await loop.run_in_executor(None, _sync_call)
+
+    async def _call_local(self, prompt: str, max_tokens: int) -> Optional[str]:
+        """Call a local LLM (e.g., Ollama) via HTTP."""
+        response = await self._httpx_client.post(
+            f"{settings.LOCAL_LLM_URL}/v1/chat/completions",
+            headers={
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": getattr(settings, 'LOCAL_LLM_MODEL', 'llama3'),
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.7,
+                "max_tokens": max_tokens
+            }
+        )
+        response.raise_for_status()
+        data = response.json()
+        return data["choices"][0]["message"]["content"]
+
+    async def _call_together(self, prompt: str, max_tokens: int) -> Optional[str]:
+        """Call Together AI API."""
+        response = await self._httpx_client.post(
+            "https://api.together.xyz/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {settings.TOGETHER_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": getattr(settings, 'TOGETHER_MODEL', 'meta-llama/Llama-3-8b-chat-hf'),
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.7,
+                "max_tokens": max_tokens
+            }
+        )
+        response.raise_for_status()
+        data = response.json()
+        return data["choices"][0]["message"]["content"]
     
     def _get_fallback_response(self) -> str:
         """Return a generic confused response when LLMs fail."""
@@ -209,11 +335,25 @@ class LLMClient:
 class HoneypotAgent:
     """
     Main honeypot agent that manages personas and generates responses.
+    
+    Features:
+    - Response caching (avoid repeated LLM calls)
+    - Pattern learning (improve accuracy over time)
+    - Engagement memory (remember what responses extract most intel)
     """
     
     def __init__(self):
         self.llm = LLMClient()
         self._conversation_states: Dict[str, ConversationState] = {}
+        self._memory = None  # Lazy load
+    
+    @property
+    def memory(self):
+        """Lazy load agent memory."""
+        if self._memory is None:
+            from core.agent_memory import get_agent_memory
+            self._memory = get_agent_memory()
+        return self._memory
     
     async def generate_response(
         self,
@@ -273,10 +413,55 @@ class HoneypotAgent:
         context = self._build_context(session.messages, message)
         full_prompt = f"{prompt}\n\n**CONVERSATION:**\n{context}\n\n**SCAMMER'S LATEST MESSAGE:**\n{message}\n\n**YOUR RESPONSE (as {persona.display_name}):**"
         
-        # Generate response
-        raw_response = await self.llm.generate(full_prompt)
+        # 2. Get LLM response WITH CACHING
+        max_tokens = 150 if persona.typing_speed == "fast" else 80
+        raw_response = await self.llm.generate(
+            full_prompt, 
+            max_tokens, 
+            session_id=session.session_id,
+            message=message,  # For cache lookup
+            scam_type=scam_result.scam_type,  # For cache context
+            persona=persona.name  # For persona-specific caching
+        )
         
-        # Add human touches
+        # 3. Learn from this engagement (if we got intel)
+        intel_count = sum(len(v) for k, v in intelligence.items() if isinstance(v, list))
+        if intel_count > 0 and scam_result.is_scam:
+            self.memory.record_successful_engagement(
+                session_id=session.session_id,
+                scam_type=scam_result.scam_type or "unknown",
+                persona=persona.name,
+                response=raw_response,
+                intel_count=intel_count
+            )
+        
+        # 4. Learn new patterns from high-confidence detections
+        if scam_result.is_scam and scam_result.confidence >= 0.7:
+            self.memory.learn_pattern(
+                message=message,
+                scam_type=scam_result.scam_type or "unknown",
+                confidence=scam_result.confidence,
+                keywords=intelligence.get("keywords", []),
+                intel=intelligence
+            )
+        
+        # 5. Track scammer identifiers for cross-session recognition
+        for phone in intelligence.get("phone_numbers", []):
+            self.memory.add_scammer_fingerprint(
+                session_id=session.session_id,
+                phone=phone,
+                scam_type=scam_result.scam_type
+            )
+        for upi in intelligence.get("upi_ids", []):
+            self.memory.add_scammer_fingerprint(
+                session_id=session.session_id,
+                upi=upi,
+                scam_type=scam_result.scam_type
+            )
+        
+        # 6. Post-process (add typos, delays)
+        
+        # 6. Post-process (add typos, delays)
         final_response = self._add_human_touches(raw_response, persona)
         
         # Build agent notes

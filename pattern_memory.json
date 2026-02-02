@@ -79,10 +79,92 @@
       "scam_types": [
         "impersonation"
       ]
+    },
+    "1cf3a47f7d1e38db": {
+      "count": 1,
+      "first_seen": "2026-02-02T16:33:01.966375",
+      "last_seen": "2026-02-02T16:33:01.966375",
+      "scam_types": [
+        "impersonation"
+      ]
+    },
+    "1776632103925d40": {
+      "count": 1,
+      "first_seen": "2026-02-02T16:33:11.698642",
+      "last_seen": "2026-02-02T16:33:11.698642",
+      "scam_types": [
+        "lottery"
+      ]
+    },
+    "2217729bd49032a1": {
+      "count": 1,
+      "first_seen": "2026-02-02T16:33:30.583171",
+      "last_seen": "2026-02-02T16:33:30.583171",
+      "scam_types": [
+        "phishing"
+      ]
+    },
+    "b1976dc437866527": {
+      "count": 1,
+      "first_seen": "2026-02-02T16:33:40.291884",
+      "last_seen": "2026-02-02T16:33:40.291884",
+      "scam_types": [
+        "impersonation"
+      ]
+    },
+    "02528e87c09fc0a1": {
+      "count": 1,
+      "first_seen": "2026-02-02T16:33:49.622624",
+      "last_seen": "2026-02-02T16:33:49.622624",
+      "scam_types": [
+        "impersonation"
+      ]
+    },
+    "d8653d9cdc927d3b": {
+      "count": 1,
+      "first_seen": "2026-02-02T16:33:58.172645",
+      "last_seen": "2026-02-02T16:33:58.172645",
+      "scam_types": [
+        "phishing"
+      ]
+    },
+    "ce9b8fe7f6589a6a": {
+      "count": 2,
+      "first_seen": "2026-02-02T16:34:09.663289",
+      "last_seen": "2026-02-02T16:34:09.952656",
+      "scam_types": [
+        "impersonation"
+      ]
+    },
+    "dee9fe6f53c2cce8": {
+      "count": 1,
+      "first_seen": "2026-02-02T16:34:19.338037",
+      "last_seen": "2026-02-02T16:34:19.338037",
+      "scam_types": [
+        "impersonation"
+      ]
     }
   },
-  "phone_numbers": {},
-  "upi_ids": {},
+  "phone_numbers": {
+    "9876543210": {
+      "count": 1,
+      "first_seen": "2026-02-02T16:33:40.291884",
+      "last_seen": "2026-02-02T16:33:40.291884",
+      "scam_types": [
+        "impersonation"
+      ]
+    }
+  },
+  "upi_ids": {
+    "fraudster@ybl": {
+      "count": 1,
+      "first_seen": "2026-02-02T16:33:30.583171",
+      "last_seen": "2026-02-02T16:33:30.583171",
+      "scam_types": [
+        "phishing"
+      ]
+    }
+  },
   "urls": {},
   "keyword_combos": {
     "aadhaar|arrest|immediately|rs|warrant": {
@@ -116,8 +198,40 @@
       "scam_types": [
         "phishing"
       ]
+    },
+    "aadhaar|arrest|fir|transfer": {
+      "count": 1,
+      "first_seen": "2026-02-02T16:33:01.966375",
+      "last_seen": "2026-02-02T16:33:01.966375",
+      "scam_types": [
+        "impersonation"
+      ]
+    },
+    "paytm|rs": {
+      "count": 1,
+      "first_seen": "2026-02-02T16:33:11.698642",
+      "last_seen": "2026-02-02T16:33:11.698642",
+      "scam_types": [
+        "lottery"
+      ]
+    },
+    "immediately|verification": {
+      "count": 1,
+      "first_seen": "2026-02-02T16:33:40.291884",
+      "last_seen": "2026-02-02T16:33:40.291884",
+      "scam_types": [
+        "impersonation"
+      ]
+    },
+    "kyc|pan|update": {
+      "count": 2,
+      "first_seen": "2026-02-02T16:34:09.663289",
+      "last_seen": "2026-02-02T16:34:09.952656",
+      "scam_types": [
+        "impersonation"
+      ]
     }
   },
   "scammer_fingerprints": {},
-  "last_updated": "2026-01-29T16:38:08.042065"
+  "last_updated": "2026-02-02T16:34:19.338092"
 }

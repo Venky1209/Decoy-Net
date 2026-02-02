@@ -98,11 +98,104 @@ class RateLimitAwareQueue:
         
         # Stats
         self.stats = {
-            "total_requests": 0,
+            "queued": 0,
+            "processed": 0,
+            "errors": 0,
             "cache_hits": 0,
+            "rate_limits": 0,
+            "total_requests": 0,
             "failovers": 0,
             "local_fallbacks": 0
         }
+        
+        # Burst Protection: Map of client_key -> list of timestamps
+        self.client_request_history: Dict[str, List[float]] = {}
+        
+        # Worker task (lazy initialized)
+        self._worker_task = None
+
+    def check_client_limit(self, client_key: str, limit: int = 5, window: int = 60) -> bool:
+        """Check if client has exceeded rate limit."""
+        if not client_key:
+            return True
+            
+        now = time.time()
+        history = self.client_request_history.get(client_key, [])
+        history = [t for t in history if now - t < window]
+        
+        if len(history) >= limit:
+            logger.warning(f"Rate limit exceeded for client {client_key}")
+            return False
+            
+        history.append(now)
+        self.client_request_history[client_key] = history
+        return True
+    
+    def _ensure_worker_running(self):
+        """Ensure worker is running."""
+        if self._worker_task is None or self._worker_task.done():
+            try:
+                loop = asyncio.get_running_loop()
+                self._worker_task = loop.create_task(self._worker())
+            except RuntimeError:
+                pass  # No loop running yet
+
+    async def submit(self, request_func: Callable, cache_key: str = None, client_key: str = None) -> Any:
+        """Submit a request to the queue."""
+        # Ensure worker is running
+        self._ensure_worker_running()
+        
+        # Check burst limit
+        if client_key and not self.check_client_limit(client_key):
+            logger.warning(f"Burst request rejected for {client_key}")
+            return None
+
+        # Check cache
+        if cache_key and cache_key in self.cache:
+            entry = self.cache[cache_key]
+            if time.time() - entry["time"] < self.cache_ttl:
+                self.stats["cache_hits"] += 1
+                return entry["data"]
+        
+        # Create future for result
+        loop = asyncio.get_running_loop()
+        future = loop.create_future()
+        
+        await self.pending_queue.put({
+            "func": request_func,
+            "future": future,
+            "cache_key": cache_key
+        })
+        
+        self.stats["queued"] += 1
+        return await future
+
+    async def _worker(self):
+        """Worker to process queued requests."""
+        while True:
+            try:
+                item = await self.pending_queue.get()
+                func = item["func"]
+                future = item["future"]
+                cache_key = item.get("cache_key")
+                
+                async with self.semaphore:
+                    try:
+                        result = await func()
+                        if cache_key and result:
+                            self._cache_result(cache_key, result)
+                        
+                        if not future.done():
+                            future.set_result(result)
+                    except Exception as e:
+                        if not future.done():
+                            future.set_exception(e)
+                    finally:
+                        self.stats["processed"] += 1
+                        self.pending_queue.task_done()
+            except Exception as e:
+                logger.error(f"Queue worker error: {e}")
+                await asyncio.sleep(1)
     
     async def execute_with_failover(
         self,

@@ -69,6 +69,38 @@ PHISHING_KEYWORDS = [
     "reset", "expired session", "reactivate"
 ]
 
+# Crypto scam keywords
+CRYPTO_KEYWORDS = [
+    "bitcoin", "btc", "ethereum", "eth", "crypto", "wallet",
+    "trading", "investment", "profit", "return", "mining",
+    "binance", "coinbase", "trust wallet", "metamask",
+    "usdt", "doubling", "forex", "signal"
+]
+
+# Romance scam keywords
+ROMANCE_KEYWORDS = [
+    "love", "darling", "honey", "soulmate", "relationship",
+    "stuck", "airport", "customs", "gift", "parcel",
+    "meet", "marry", "husband", "wife", "doctor",
+    "peacekeeping", "military", "widower"
+]
+
+# Tech support keywords
+TECH_SUPPORT_KEYWORDS = [
+    "microsoft", "windows", "computer", "virus", "hacked",
+    "defender", "firewall", "teamviewer", "anydesk", "quicksupport",
+    "remote", "access", "refund", "subscription", "expire",
+    "call center", "engineer"
+]
+
+# Digital Arrest / Courier keywords
+ARREST_KEYWORDS = [
+    "cbi", "crime branch", "narcotics", "customs", "illegal",
+    "parcel", "fedex", "dhl", "courier", "trafficking",
+    "aadhar", "video call", "skype", "statement",
+    "police", "arrest", "warrant", "cyber crime"
+]
+
 # ============================================
 # INTELLIGENCE EXTRACTION PATTERNS
 # ============================================
@@ -91,16 +123,27 @@ UPI_PATTERNS: List[Pattern] = [
 
 # Phone number patterns (Indian)
 PHONE_PATTERNS: List[Pattern] = [
-    re.compile(r'\+91[\s-]?\d{10}\b'),  # +91 format
-    re.compile(r'\b91[\s-]?\d{10}\b'),  # 91 format
+    re.compile(r'\+91[\s\-]?\d{5}[\s\-]?\d{5}\b'),  # +91 format with optional space
+    re.compile(r'\b91[\s\-]?\d{5}[\s\-]?\d{5}\b'),  # 91 format with optional space
+    re.compile(r'\+91[\s-]?\d{10}\b'),  # +91 format compact
+    re.compile(r'\b91[\s-]?\d{10}\b'),  # 91 format compact
     re.compile(r'\b0\d{10}\b'),  # 0 prefix format
     re.compile(r'\b[6-9]\d{9}\b'),  # Indian mobile (starts with 6-9)
+    re.compile(r'\b[6-9]\d{4}[\s\-]?\d{5}\b'),  # With space/dash in middle
 ]
 
 # Email patterns
 EMAIL_PATTERN = re.compile(
     r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 )
+
+# Crypto Wallet Patterns
+CRYPTO_WALLET_PATTERNS: List[Pattern] = [
+    re.compile(r'\b(?:1|3)[a-km-zA-HJ-NP-Z1-9]{25,34}\b'),  # Bitcoin (Legacy/Segwit) - Non-capturing group
+    re.compile(r'\bbc1[a-z0-9]{39,59}\b'),  # Bitcoin (Bech32)
+    re.compile(r'\b0x[a-fA-F0-9]{40}\b'),  # Ethereum/BSC/Polygon
+    re.compile(r'\bT[A-Za-z1-9]{33}\b'),  # TRON (USDT common)
+]
 
 # URL patterns
 URL_PATTERNS: List[Pattern] = [

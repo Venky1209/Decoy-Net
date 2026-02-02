@@ -1,0 +1,490 @@
+{
+  "response_cache": {
+    "0ee979790a998207": {
+      "message_hash": "0ee979790a998207",
+      "scam_type": "banking",
+      "persona": "elderly_uncle",
+      "response": "Kya baat hai? Which account is blocked?",
+      "created_at": "2026-02-02T17:09:05.322176",
+      "hit_count": 2,
+      "avg_intel_score": 0.0
+    },
+    "331d17c50f639fb1": {
+      "message_hash": "331d17c50f639fb1",
+      "scam_type": "phishing",
+      "persona": "small_business_owner",
+      "response": "Kya baat hai? Which account is blocked? I have two accounts, one with HDFC and one with SBI. Which one are you talking about?",
+      "created_at": "2026-02-02T17:09:37.316022",
+      "hit_count": 1,
+      "avg_intel_score": 0.0
+    },
+    "9cf92d1ab6c1b1e5": {
+      "message_hash": "9cf92d1ab6c1b1e5",
+      "scam_type": "impersonation",
+      "persona": "elderly_uncle",
+      "response": "Arre, kya baat hai? Which account is suspicious? I have account in SBI and also in HDFC. Which one is blocked? Please tell me clearly, beta. I am getting confused.",
+      "created_at": "2026-02-02T17:09:43.978456",
+      "hit_count": 1,
+      "avg_intel_score": 0.0
+    },
+    "850d406e766f4d71": {
+      "message_hash": "850d406e766f4d71",
+      "scam_type": "impersonation",
+      "persona": "tech_worker",
+      "response": "Kya baat hai? Which account is blocked exactly? I have accounts in HDFC and ICICI, which one are you talking about? When did this happen?",
+      "created_at": "2026-02-02T17:09:47.873760",
+      "hit_count": 1,
+      "avg_intel_score": 0.0
+    },
+    "7f38240c4dbc14ad": {
+      "message_hash": "7f38240c4dbc14ad",
+      "scam_type": "impersonation",
+      "persona": "homemaker",
+      "response": "Kya baat hai? Which account is blocked exactly? I have account in SBI, is that the one? What happened to my Aadhaar?",
+      "created_at": "2026-02-02T17:11:00.135102",
+      "hit_count": 3,
+      "avg_intel_score": 0.0
+    },
+    "b3c97c76cfd789d0": {
+      "message_hash": "b3c97c76cfd789d0",
+      "scam_type": "lottery",
+      "persona": "small_business_owner",
+      "response": "Kya baat hai? I don't understand. Which account is this for? I have HDFC account, not Paytm. When did I win this lottery?",
+      "created_at": "2026-02-02T17:11:05.904569",
+      "hit_count": 3,
+      "avg_intel_score": 0.0
+    },
+    "8dfb0fd9fe777b69": {
+      "message_hash": "8dfb0fd9fe777b69",
+      "scam_type": "impersonation",
+      "persona": "elderly_uncle",
+      "response": "Arre, kya baat hai? Which account is blocked exactly? I have account in SBI and also in HDFC. Which one needs verification? Should I call 9876543210 now? Please repeat, I didn't understand properly.",
+      "created_at": "2026-02-02T17:11:33.210758",
+      "hit_count": 2,
+      "avg_intel_score": 0.0
+    },
+    "8dd51ac040d9d3c1": {
+      "message_hash": "8dd51ac040d9d3c1",
+      "scam_type": "impersonation",
+      "persona": "elderly_uncle",
+      "response": "Kya baat hai? Which account problem? I have account in SBI, kya wahi blocked hai? My son handles these things, should I call him?",
+      "created_at": "2026-02-02T17:11:39.204376",
+      "hit_count": 3,
+      "avg_intel_score": 0.0
+    },
+    "453b08fa9592aa34": {
+      "message_hash": "453b08fa9592aa34",
+      "scam_type": "phishing",
+      "persona": "elderly_uncle",
+      "response": "Arre, OTP kya hai? You want me to send OTP, but which account is blocked exactly? SBI wala or may be my other account in HDFC? My son always handles these things, should I call him first?",
+      "created_at": "2026-02-02T17:11:44.350929",
+      "hit_count": 2,
+      "avg_intel_score": 0.0
+    },
+    "8b89361a2d694c91": {
+      "message_hash": "8b89361a2d694c91",
+      "scam_type": "impersonation",
+      "persona": "small_business_owner",
+      "response": "Kya baat hai? My PAN card is already linked to my ICICI account. Which account are you talking about? I have a business account in HDFC too. Is that the one?",
+      "created_at": "2026-02-02T17:11:48.622774",
+      "hit_count": 3,
+      "avg_intel_score": 0.0
+    },
+    "fa3fce7a1114de94": {
+      "message_hash": "fa3fce7a1114de94",
+      "scam_type": "impersonation",
+      "persona": "tech_worker",
+      "response": "\"Virus? Kya baat hai? I didn't notice anything. Which account are you talking about? I have my bank accounts with HDFC, is that what you mean?\"",
+      "created_at": "2026-02-02T17:11:56.196809",
+      "hit_count": 3,
+      "avg_intel_score": 0.0
+    },
+    "69e52a023c36b895": {
+      "message_hash": "69e52a023c36b895",
+      "scam_type": "impersonation",
+      "persona": "homemaker",
+      "response": "Kya baat hai? Which account is blocked exactly? I have account in SBI, is that the one? When did this happen?",
+      "created_at": "2026-02-02T17:12:01.144165",
+      "hit_count": 3,
+      "avg_intel_score": 0.0
+    },
+    "6ccbdfee054fc9e2": {
+      "message_hash": "6ccbdfee054fc9e2",
+      "scam_type": "phishing",
+      "persona": "small_business_owner",
+      "response": "Kya baat hai? Which account is blocked exactly? I have two accounts, one in SBI and one in HDFC. Which one needs verification?",
+      "created_at": "2026-02-02T17:26:20.951660",
+      "hit_count": 2,
+      "avg_intel_score": 0.0
+    },
+    "b996f28d6905c6e7": {
+      "message_hash": "b996f28d6905c6e7",
+      "scam_type": "phishing",
+      "persona": "tech_worker",
+      "response": "\"Kya baat hai? Which account is this for? I have accounts in HDFC and ICICI, which one needs the KYC update? And why are you asking for my PAN card, can you please verify your identity and the official process for this?\"",
+      "created_at": "2026-02-02T17:26:38.923263",
+      "hit_count": 2,
+      "avg_intel_score": 0.0
+    }
+  },
+  "successful_responses": {
+    "phishing": [
+      {
+        "session_id": "wertyu-dfghj-ertyui",
+        "persona": "small_business_owner",
+        "response": "Acha, Kya baat hai? Which account is blocked? I have two accounts, one with HDFC and one with SBI. Which one are you talking about?",
+        "intel_extracted": 5,
+        "timestamp": "2026-02-02T17:09:40.153081"
+      },
+      {
+        "session_id": "wertyu-dfghj-ertyui",
+        "persona": "small_business_owner",
+        "response": "Kya baat hai? Which account is blocked? I have two accounts, one with HDFC and one with SBI. Which one are you talking about?",
+        "intel_extracted": 4,
+        "timestamp": "2026-02-02T17:09:37.316085"
+      },
+      {
+        "session_id": "guvi_eval_225634_8",
+        "persona": "tech_worker",
+        "response": "\"Kya baat hai? Which account is this for? I have accounts in HDFC and ICICI, which one needs the KYC update? And why are you asking for my PAN card, can you please verify your identity and the official process for this?\"",
+        "intel_extracted": 3,
+        "timestamp": "2026-02-02T17:26:38.923296"
+      },
+      {
+        "session_id": "guvi_eval_225639_9",
+        "persona": "elderly_uncle",
+        "response": "Arre, kya baat hai? Which account is this for? I have account in SBI, not sure if this is for that one. My son handles all online things, should I ask him to help?",
+        "intel_extracted": 3,
+        "timestamp": "2026-02-02T17:26:41.224241"
+      },
+      {
+        "session_id": "guvi_eval_230253_7",
+        "persona": "small_business_owner",
+        "response": "Acha, Kya baat hai? Which account is blocked? I have two accounts, one with HDFC and one with SBI. Which one are you talking about?",
+        "intel_extracted": 3,
+        "timestamp": "2026-02-02T17:33:04.724342"
+      },
+      {
+        "session_id": "guvi_eval_224112_5",
+        "persona": "small_business_owner",
+        "response": "Oh, Acha, Kya baat hai? Which account is blocked? I have two accounts, one with HDFC and one with SBI. Which one are you talking about?",
+        "intel_extracted": 2,
+        "timestamp": "2026-02-02T17:11:26.089485"
+      },
+      {
+        "session_id": "guvi_eval_224133_7",
+        "persona": "elderly_uncle",
+        "response": "Arre, OTP kya hai? You want me to send OTP, but which account is blocked exactly? SBI wala or may be my other account in HDFC? My son always handles these things, should I call him first?",
+        "intel_extracted": 2,
+        "timestamp": "2026-02-02T17:11:44.350979"
+      },
+      {
+        "session_id": "guvi_eval_225616_5",
+        "persona": "small_business_owner",
+        "response": "Kya baat hai? Which account is blocked exactly? I have two accounts, one in SBI and one in HDFC. Which one needs verification?",
+        "intel_extracted": 2,
+        "timestamp": "2026-02-02T17:26:20.951703"
+      },
+      {
+        "session_id": "guvi_eval_225626_7",
+        "persona": "elderly_uncle",
+        "response": "Arre, OTP kya hai? You want me to send OTP, but which account is blocked exactly? SBI wala or may be my other account in HDFC? My son always handles these things, should I call him first?",
+        "intel_extracted": 2,
+        "timestamp": "2026-02-02T17:26:34.404772"
+      },
+      {
+        "session_id": "guvi_eval_230243_5",
+        "persona": "college_student",
+        "response": "\"Kya baat hai? Which account is blocked exactly? I have accounts in SBI and HDFC, which one are you talking about? And why do I need to send money to fraudster@ybl for verification?\"",
+        "intel_extracted": 2,
+        "timestamp": "2026-02-02T17:32:47.977368"
+      }
+    ],
+    "impersonation": [
+      {
+        "session_id": "guvi_eval_224054_2",
+        "persona": "homemaker",
+        "response": "Kya baat hai? Which account is blocked exactly? I have account in SBI, is that the one? What happened to my Aadhaar?",
+        "intel_extracted": 4,
+        "timestamp": "2026-02-02T17:11:00.135143"
+      },
+      {
+        "session_id": "guvi_eval_225601_2",
+        "persona": "college_student",
+        "response": "Kya baat hai? Which account is blocked exactly? I have 2 accounts, one in SBI and one in HDFC. Which one are you talking about?",
+        "intel_extracted": 4,
+        "timestamp": "2026-02-02T17:26:06.048301"
+      },
+      {
+        "session_id": "guvi_eval_230227_2",
+        "persona": "small_business_owner",
+        "response": "Kya baat hai? Which account is blocked exactly? I have accounts in HDFC and SBI, which one is affected?",
+        "intel_extracted": 4,
+        "timestamp": "2026-02-02T17:32:32.952616"
+      },
+      {
+        "session_id": "whatsapp-test-456",
+        "persona": "elderly_uncle",
+        "response": "Acha, Kya baat hai? Which account is blocked exactly? I have accounts in HDFC and ICICI, which one are you talking about? When did this happen?",
+        "intel_extracted": 3,
+        "timestamp": "2026-02-02T17:09:50.499007"
+      },
+      {
+        "session_id": "guvi_eval_224127_6",
+        "persona": "elderly_uncle",
+        "response": "Arre, kya baat hai? Which account is blocked exactly? I have account in SBI and also in HDFC. Which one needs verification? Should I call 9876543210 now? Please repeat, I didn't understand properly.",
+        "intel_extracted": 3,
+        "timestamp": "2026-02-02T17:11:33.210802"
+      },
+      {
+        "session_id": "guvi_eval_224144_8",
+        "persona": "small_business_owner",
+        "response": "Kya baat hai? My PAN card is already linked to my ICICI account. Which account are you talking about? I have a business account in HDFC too. Is that the one?",
+        "intel_extracted": 3,
+        "timestamp": "2026-02-02T17:11:48.625668"
+      },
+      {
+        "session_id": "guvi_eval_224149_9",
+        "persona": "elderly_uncle",
+        "response": "Arre, kya baat hai? Which account is this for? I have account in SBI and also in ICICI. Which one needs update? My son handles all this, I will ask him. What is PAN card, you want me to share?",
+        "intel_extracted": 3,
+        "timestamp": "2026-02-02T17:11:50.284761"
+      },
+      {
+        "session_id": "guvi_eval_224156_11",
+        "persona": "homemaker",
+        "response": "Kya baat hai? Which account is blocked exactly? I have account in SBI, is that the one? When did this happen?",
+        "intel_extracted": 3,
+        "timestamp": "2026-02-02T17:12:01.144217"
+      },
+      {
+        "session_id": "guvi_eval_225621_6",
+        "persona": "college_student",
+        "response": "Kya baat hai? What happened to my account? I have a SBI account, is that the one you're talking about? Should I call the number you gave me now?",
+        "intel_extracted": 3,
+        "timestamp": "2026-02-02T17:26:25.799366"
+      },
+      {
+        "session_id": "guvi_eval_225646_11",
+        "persona": "small_business_owner",
+        "response": "Kya baat hai? Which account is blocked exactly? I have accounts in SBI and HDFC, which one are you talking about?",
+        "intel_extracted": 3,
+        "timestamp": "2026-02-02T17:26:51.518784"
+      },
+      {
+        "session_id": "guvi_eval_230248_6",
+        "persona": "homemaker",
+        "response": "Hmm... Kya baat hai? Which account is blocked exactly? I have account in SBI, is that the one? What happened to my Aadhaar?",
+        "intel_extracted": 3,
+        "timestamp": "2026-02-02T17:32:52.489735"
+      },
+      {
+        "session_id": "guvi_eval_230305_8",
+        "persona": "small_business_owner",
+        "response": "Kya baat hai? My PAN card is already linked to my ICICI account. Which account are you talking about? I have a business account in HDFC too. Is that the one?",
+        "intel_extracted": 3,
+        "timestamp": "2026-02-02T17:33:09.227069"
+      },
+      {
+        "session_id": "guvi_eval_230309_9",
+        "persona": "college_student",
+        "response": "Arre, Kya baat hai? Which account is blocked exactly? I have account in SBI, is that the one? What happened to my Aadhaar?",
+        "intel_extracted": 3,
+        "timestamp": "2026-02-02T17:33:10.594113"
+      },
+      {
+        "session_id": "guvi_eval_230315_11",
+        "persona": "tech_worker",
+        "response": "Kya baat hai? Which account is blocked exactly? I have accounts in HDFC and ICICI, which one are you talking about? And how did I accumulate such a huge penalty? Can you please explain?",
+        "intel_extracted": 3,
+        "timestamp": "2026-02-02T17:33:23.422166"
+      },
+      {
+        "session_id": "simple-test-123",
+        "persona": "tech_worker",
+        "response": "Kya baat hai? Which account is blocked exactly? I have accounts in HDFC and ICICI, which one are you talking about? When did this happen?",
+        "intel_extracted": 2,
+        "timestamp": "2026-02-02T17:09:47.873783"
+      }
+    ],
+    "lottery": [
+      {
+        "session_id": "guvi_eval_224100_3",
+        "persona": "small_business_owner",
+        "response": "Kya baat hai? I don't understand. Which account is this for? I have HDFC account, not Paytm. When did I win this lottery?",
+        "intel_extracted": 3,
+        "timestamp": "2026-02-02T17:11:05.904607"
+      },
+      {
+        "session_id": "guvi_eval_225606_3",
+        "persona": "college_student",
+        "response": "\"Wait, kya baat hai? I didn't enter any lottery. Which account is this related to? I have a SBI account, not Paytm. How did I win?\"",
+        "intel_extracted": 3,
+        "timestamp": "2026-02-02T17:26:11.973917"
+      },
+      {
+        "session_id": "guvi_eval_230233_3",
+        "persona": "college_student",
+        "response": "\"dude, kya baat hai? I don't remember entering any lottery. Which account will I send the money from? I have a SBI account, not Paytm\"",
+        "intel_extracted": 3,
+        "timestamp": "2026-02-02T17:32:38.265094"
+      }
+    ]
+  },
+  "learned_patterns": {
+    "01a4123a6e46": {
+      "scam_type": "digital_arrest",
+      "key_phrases": [],
+      "keywords": [
+        "cbi",
+        "arrest",
+        "digital"
+      ],
+      "example_intel": {
+        "phones": [
+          "9876543210"
+        ],
+        "upis": [],
+        "urls": []
+      },
+      "times_seen": 1,
+      "first_seen": "2026-02-02T17:09:05.323596",
+      "confidence_avg": 0.9
+    },
+    "0c9b1dbe8492": {
+      "scam_type": "phishing",
+      "key_phrases": [
+        "account.*block",
+        "verify.*immediately"
+      ],
+      "keywords": [
+        "blocked",
+        "bank account",
+        "verify",
+        "immediately"
+      ],
+      "example_intel": {
+        "phones": [],
+        "upis": [],
+        "urls": []
+      },
+      "times_seen": 1,
+      "first_seen": "2026-02-02T17:09:37.317764",
+      "confidence_avg": 0.821
+    },
+    "0b45ee59ff86": {
+      "scam_type": "impersonation",
+      "key_phrases": [],
+      "keywords": [],
+      "example_intel": {
+        "phones": [],
+        "upis": [],
+        "urls": []
+      },
+      "times_seen": 18,
+      "first_seen": "2026-02-02T17:09:43.978519",
+      "confidence_avg": 0.8985482962962964
+    },
+    "7bbdf7fe33c2": {
+      "scam_type": "lottery",
+      "key_phrases": [],
+      "keywords": [
+        "rs",
+        "paytm"
+      ],
+      "example_intel": {
+        "phones": [],
+        "upis": [
+          "scammer@paytm"
+        ],
+        "urls": []
+      },
+      "times_seen": 3,
+      "first_seen": "2026-02-02T17:11:05.904970",
+      "confidence_avg": 0.8841519999999999
+    },
+    "37455a00d71f": {
+      "scam_type": "phishing",
+      "key_phrases": [
+        "send.*money"
+      ],
+      "keywords": [
+        "verification"
+      ],
+      "example_intel": {
+        "phones": [],
+        "upis": [
+          "fraudster@ybl"
+        ],
+        "urls": []
+      },
+      "times_seen": 3,
+      "first_seen": "2026-02-02T17:11:26.090237",
+      "confidence_avg": 0.9136666666666667
+    },
+    "b0702b50820c": {
+      "scam_type": "phishing",
+      "key_phrases": [],
+      "keywords": [
+        "update",
+        "pan",
+        "kyc"
+      ],
+      "example_intel": {
+        "phones": [],
+        "upis": [],
+        "urls": []
+      },
+      "times_seen": 2,
+      "first_seen": "2026-02-02T17:26:38.923585",
+      "confidence_avg": 0.9804999999999999
+    }
+  },
+  "scammer_fingerprints": {
+    "scammer@paytm": {
+      "sessions": [
+        "guvi_eval_224100_3",
+        "guvi_eval_225606_3",
+        "guvi_eval_230233_3"
+      ],
+      "scam_types": [
+        "lottery"
+      ],
+      "first_seen": "2026-02-02T17:11:05.906999",
+      "times_seen": 3,
+      "last_seen": "2026-02-02T17:32:38.269312"
+    },
+    "fraudster@ybl": {
+      "sessions": [
+        "guvi_eval_224112_5",
+        "guvi_eval_225616_5",
+        "guvi_eval_230243_5"
+      ],
+      "scam_types": [
+        "phishing"
+      ],
+      "first_seen": "2026-02-02T17:11:26.095634",
+      "times_seen": 3,
+      "last_seen": "2026-02-02T17:32:47.981080"
+    },
+    "9876543210": {
+      "sessions": [
+        "guvi_eval_224127_6",
+        "guvi_eval_225621_6",
+        "guvi_eval_230248_6"
+      ],
+      "scam_types": [
+        "impersonation"
+      ],
+      "first_seen": "2026-02-02T17:11:33.213791",
+      "times_seen": 3,
+      "last_seen": "2026-02-02T17:32:52.493220"
+    }
+  },
+  "stats": {
+    "cache_hits": 5,
+    "cache_misses": 16,
+    "patterns_learned": 6
+  },
+  "last_updated": "2026-02-02T17:33:23.422494"
+}
