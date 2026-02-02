@@ -73,6 +73,7 @@ class HoneypotRequest(BaseModel):
     Supports both formats:
     - Simple: {"message": "string"}
     - Hackathon: {"message": {"sender": "scammer", "text": "string", "timestamp": "..."}}
+    - Test: {} (empty body for endpoint testing)
     
     Also accepts field name variations:
     - sessionId or session_id (optional - auto-generated if not provided)
@@ -80,7 +81,7 @@ class HoneypotRequest(BaseModel):
     - conversationHistory, conversation_history, or history
     """
     sessionId: Optional[str] = Field(default=None, description="Unique session identifier", alias="session_id")
-    message: Union[str, IncomingMessage] = Field(..., description="Current message")
+    message: Optional[Union[str, IncomingMessage]] = Field(default=None, description="Current message")
     conversationHistory: Optional[List[Dict[str, Any]]] = Field(
         default_factory=list,
         description="Previous conversation messages",
@@ -108,6 +109,10 @@ class HoneypotRequest(BaseModel):
             if 'text' in data and 'message' not in data:
                 data['message'] = data.pop('text')
             
+            # Provide default message if none provided (for testing endpoints)
+            if not data.get('message'):
+                data['message'] = "Hello, this is a test message."
+            
             # Handle conversationHistory variations
             if 'conversation_history' in data and 'conversationHistory' not in data:
                 data['conversationHistory'] = data.pop('conversation_history')
@@ -117,6 +122,8 @@ class HoneypotRequest(BaseModel):
     
     def get_message_text(self) -> str:
         """Get message text regardless of format."""
+        if self.message is None:
+            return "Hello, this is a test message."
         if isinstance(self.message, str):
             return self.message
         return self.message.text
