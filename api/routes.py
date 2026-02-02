@@ -5,7 +5,7 @@ Now using Enhanced Scam Detector with Pattern Memory and Multi-LLM Ensemble.
 RESPONSE FORMAT (from PS Section 8):
     {"status": "success", "reply": "Why is my account being suspended?"}
 """
-from fastapi import APIRouter, HTTPException, Header, Depends, BackgroundTasks
+from fastapi import APIRouter, HTTPException, Header, Depends, BackgroundTasks, Request
 from typing import Optional, Dict, Any
 import logging
 
@@ -70,7 +70,7 @@ async def health_check():
     }
 )
 async def guvi_honeypot(
-    request: HoneypotRequest,
+    request: Request,
     background_tasks: BackgroundTasks,
     api_key: str = Depends(verify_api_key)
 ) -> GUVISimpleResponse:
@@ -80,40 +80,61 @@ async def guvi_honeypot(
     Returns the EXACT format from Problem Statement Section 8:
     {"status": "success", "reply": "Why is my account being suspended?"}
     
-    Internally handles:
-    - Scam detection
-    - AI Agent engagement
-    - Intelligence extraction
-    - Callback to GUVI evaluation endpoint
+    Accepts ANY valid JSON body - extremely flexible for testing.
     """
     try:
-        logger.info(f"[GUVI] Processing session: {request.sessionId}")
+        # Parse body flexibly - accept any JSON
+        try:
+            body = await request.json()
+        except:
+            body = {}
+        
+        # Extract fields with maximum flexibility
+        session_id = body.get("sessionId") or body.get("session_id") or str(__import__("uuid").uuid4())
+        
+        # Handle message in multiple formats
+        message = body.get("message") or body.get("text") or body.get("msg") or "Hello"
+        if isinstance(message, dict):
+            message = message.get("text") or message.get("content") or "Hello"
+        
+        # Handle conversation history
+        history = body.get("conversationHistory") or body.get("conversation_history") or body.get("history") or []
+        
+        # Create proper request object
+        honeypot_request = HoneypotRequest(
+            sessionId=session_id,
+            message=message,
+            conversationHistory=history,
+            metadata=body.get("metadata")
+        )
+        
+        logger.info(f"[GUVI] Processing session: {honeypot_request.sessionId}")
         
         # 1. Get or create session
         session = session_manager.get_or_create_session(
-            request.sessionId,
-            request.conversationHistory
+            honeypot_request.sessionId,
+            honeypot_request.conversationHistory
         )
         
         # Get message text (supports string or object format)
-        message_text = request.get_message_text()
+        message_text = honeypot_request.get_message_text()
         
         # Get metadata for context-aware responses
-        metadata = request.metadata
+        metadata = honeypot_request.metadata
         language = metadata.language if metadata else "en"
         channel = metadata.channel if metadata else "unknown"
         
         # 2. Extract intelligence FIRST
         current_intelligence = intelligence_extractor.extract_all(
             message=message_text,
-            conversation_history=request.conversationHistory
+            conversation_history=honeypot_request.conversationHistory
         )
         session.update_intelligence(current_intelligence)
         
         # 3. Detect scam using Enhanced Detector
         scam_result = await enhanced_detector.detect(
             message=message_text,
-            conversation_history=request.conversationHistory,
+            conversation_history=honeypot_request.conversationHistory,
             intelligence=session.intelligence
         )
         
@@ -131,7 +152,7 @@ async def guvi_honeypot(
                         identifier=upi,
                         identifier_type="upi",
                         scam_type=scam_result.scam_type or "unknown",
-                        session_id=request.sessionId
+                        session_id=honeypot_request.sessionId
                     )
                 
                 for phone in session.intelligence.get("phone_numbers", []):
@@ -139,7 +160,7 @@ async def guvi_honeypot(
                         identifier=phone,
                         identifier_type="phone",
                         scam_type=scam_result.scam_type or "unknown",
-                        session_id=request.sessionId
+                        session_id=honeypot_request.sessionId
                     )
                 
                 for account in session.intelligence.get("bank_accounts", []):
@@ -147,10 +168,10 @@ async def guvi_honeypot(
                         identifier=account,
                         identifier_type="bank_account",
                         scam_type=scam_result.scam_type or "unknown",
-                        session_id=request.sessionId
+                        session_id=honeypot_request.sessionId
                     )
                 
-                logger.info(f"[SCAMMER DB] Reported identifiers for session {request.sessionId}")
+                logger.info(f"[SCAMMER DB] Reported identifiers for session {honeypot_request.sessionId}")
             except Exception as e:
                 logger.debug(f"Scammer reporting error (non-critical): {e}")
         
@@ -173,7 +194,7 @@ async def guvi_honeypot(
         should_callback = _should_trigger_callback(session, scam_result, iqs)
         
         if should_callback:
-            logger.info(f"[GUVI] Triggering callback for session: {request.sessionId}")
+            logger.info(f"[GUVI] Triggering callback for session: {honeypot_request.sessionId}")
             background_tasks.add_task(
                 callback_handler.send_callback,
                 session=session,
@@ -183,7 +204,7 @@ async def guvi_honeypot(
             )
         
         logger.info(
-            f"[GUVI] Session {request.sessionId}: "
+            f"[GUVI] Session {honeypot_request.sessionId}: "
             f"scam={scam_result.is_scam}, conf={scam_result.confidence:.2f}, "
             f"turn={session.conversation_turn}, IQS={iqs:.1f}"
         )
