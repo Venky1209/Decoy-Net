@@ -228,11 +228,13 @@ async def guvi_honeypot(
             f"turn={session.conversation_turn}, IQS={iqs:.1f}"
         )
         
-        # Return EXACT format from PS Section 8 - ONLY status and reply
-        return {
+        # Return EXACT format from PS Section 8 - ONLY status and reply (v2)
+        response_body = {
             "status": "success",
             "reply": agent_response.response
         }
+        logger.info(f"[GUVI] Response body keys: {list(response_body.keys())}")
+        return response_body
         
     except Exception as e:
         logger.error(f"[GUVI] Error: {str(e)}", exc_info=True)
