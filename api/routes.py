@@ -371,7 +371,7 @@ async def analyze_message(
         )
         
         logger.info(
-            f"Session {request.sessionId}: "
+            f"Session {honeypot_request.sessionId}: "
             f"isScam={scam_result.is_scam}, "
             f"confidence={scam_result.confidence:.2f}, "
             f"IQS={iqs:.1f}, "
