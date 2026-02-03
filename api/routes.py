@@ -63,11 +63,10 @@ async def health_check():
 
 # ============================================================================
 # PRIMARY ENDPOINT - Returns EXACT format from PS Section 8
-# {"status": "success", "reply": "..."}
+# {"status": "success", "reply": "...", "response": "..."}
 # ============================================================================
 @router.post(
     "/",
-    response_model=GUVISimpleResponse,
     responses={
         403: {"model": ErrorResponse, "description": "Invalid API key"},
     }
@@ -76,12 +75,12 @@ async def guvi_honeypot(
     request: Request,
     background_tasks: BackgroundTasks,
     api_key: str = Depends(verify_api_key)
-) -> GUVISimpleResponse:
+):
     """
     GUVI Hackathon Primary Endpoint.
     
     Returns the EXACT format from Problem Statement Section 8:
-    {"status": "success", "reply": "Why is my account being suspended?"}
+    {"status": "success", "reply": "Why is my account being suspended?", "response": "..."}
     
     Accepts ANY valid JSON body - extremely flexible for testing.
     """
