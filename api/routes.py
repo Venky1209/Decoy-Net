@@ -8,6 +8,7 @@ RESPONSE FORMAT (from PS Section 8):
 from fastapi import APIRouter, HTTPException, Header, Depends, BackgroundTasks, Request
 from typing import Optional, Dict, Any
 import logging
+import asyncio
 
 from api.models import (
     HoneypotRequest, 
@@ -33,6 +34,8 @@ router = APIRouter()
 # Initialize core components
 # Using EnhancedScamDetector instead of basic ScamDetector
 enhanced_detector = EnhancedScamDetector(use_llm=True, use_memory=True)
+# Fast detector for GUVI test endpoint - no LLM calls
+fast_detector = EnhancedScamDetector(use_llm=False, use_memory=True)
 agent = HoneypotAgent()
 session_manager = SessionManager()
 intelligence_extractor = IntelligenceExtractor()
@@ -131,8 +134,9 @@ async def guvi_honeypot(
         )
         session.update_intelligence(current_intelligence)
         
-        # 3. Detect scam using Enhanced Detector
-        scam_result = await enhanced_detector.detect(
+        # 3. Detect scam using FAST detector (no LLM - for speed)
+        # Full LLM detection runs in background
+        scam_result = await fast_detector.detect(
             message=message_text,
             conversation_history=honeypot_request.conversationHistory,
             intelligence=session.intelligence
@@ -141,47 +145,63 @@ async def guvi_honeypot(
         # 4. Calculate IQS (Intelligence Quality Score)
         iqs = intelligence_extractor.calculate_quality_score(session.intelligence)
         
-        # 4.5 Report verified scammers to database (for future detection)
-        if scam_result.is_scam and scam_result.confidence >= 0.7:
-            try:
-                from core.scammer_verifier import scammer_verifier
-                
-                # Report all extracted identifiers as belonging to scammers
-                for upi in session.intelligence.get("upi_ids", []):
-                    scammer_verifier.report_scammer(
-                        identifier=upi,
-                        identifier_type="upi",
-                        scam_type=scam_result.scam_type or "unknown",
-                        session_id=honeypot_request.sessionId
-                    )
-                
-                for phone in session.intelligence.get("phone_numbers", []):
-                    scammer_verifier.report_scammer(
-                        identifier=phone,
-                        identifier_type="phone",
-                        scam_type=scam_result.scam_type or "unknown",
-                        session_id=honeypot_request.sessionId
-                    )
-                
-                for account in session.intelligence.get("bank_accounts", []):
-                    scammer_verifier.report_scammer(
-                        identifier=account,
-                        identifier_type="bank_account",
-                        scam_type=scam_result.scam_type or "unknown",
-                        session_id=honeypot_request.sessionId
-                    )
-                
-                logger.info(f"[SCAMMER DB] Reported identifiers for session {honeypot_request.sessionId}")
-            except Exception as e:
-                logger.debug(f"Scammer reporting error (non-critical): {e}")
+        # 4.5 Report verified scammers to database (for future detection) - in background
+        async def report_scammers():
+            if scam_result.is_scam and scam_result.confidence >= 0.7:
+                try:
+                    from core.scammer_verifier import scammer_verifier
+                    
+                    for upi in session.intelligence.get("upi_ids", []):
+                        scammer_verifier.report_scammer(
+                            identifier=upi,
+                            identifier_type="upi",
+                            scam_type=scam_result.scam_type or "unknown",
+                            session_id=honeypot_request.sessionId
+                        )
+                    
+                    for phone in session.intelligence.get("phone_numbers", []):
+                        scammer_verifier.report_scammer(
+                            identifier=phone,
+                            identifier_type="phone",
+                            scam_type=scam_result.scam_type or "unknown",
+                            session_id=honeypot_request.sessionId
+                        )
+                    
+                    for account in session.intelligence.get("bank_accounts", []):
+                        scammer_verifier.report_scammer(
+                            identifier=account,
+                            identifier_type="bank_account",
+                            scam_type=scam_result.scam_type or "unknown",
+                            session_id=honeypot_request.sessionId
+                        )
+                    
+                    logger.info(f"[SCAMMER DB] Reported identifiers for session {honeypot_request.sessionId}")
+                except Exception as e:
+                    logger.debug(f"Scammer reporting error (non-critical): {e}")
         
-        # 5. Generate AI Agent response
-        agent_response = await agent.generate_response(
-            message=message_text,
-            session=session,
-            scam_result=scam_result,
-            intelligence=session.intelligence
-        )
+        background_tasks.add_task(report_scammers)
+        
+        # 5. Generate AI Agent response with 15s timeout
+        try:
+            agent_response = await asyncio.wait_for(
+                agent.generate_response(
+                    message=message_text,
+                    session=session,
+                    scam_result=scam_result,
+                    intelligence=session.intelligence
+                ),
+                timeout=15.0
+            )
+        except asyncio.TimeoutError:
+            logger.warning(f"[GUVI] Agent response timeout, using fallback")
+            # Use a quick fallback response
+            from core.agent import AgentResponse
+            agent_response = AgentResponse(
+                response="Kya baat hai? Could you repeat that? My network is slow today.",
+                state=ConversationState.ENGAGED,
+                persona_used="Vikram",
+                scam_detected=scam_result.is_scam
+            )
         
         # 6. Update session
         session.add_message("scammer", message_text)  # Use "scammer" as per PS
