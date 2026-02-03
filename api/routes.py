@@ -228,12 +228,12 @@ async def guvi_honeypot(
             f"turn={session.conversation_turn}, IQS={iqs:.1f}"
         )
         
-        # Return format - trying "response" instead of "reply"
+        # Return EXACT format from PS Section 8: {"status": "success", "reply": "..."}
         response_body = {
             "status": "success",
-            "response": agent_response.response
+            "reply": agent_response.response
         }
-        logger.info(f"[GUVI] Response body keys: {list(response_body.keys())}")
+        logger.info(f"[GUVI] Response body: {response_body}")
         return response_body
         
     except Exception as e:
@@ -241,7 +241,7 @@ async def guvi_honeypot(
         # Even on error, try to return valid format
         return {
             "status": "error",
-            "response": "I'm having trouble understanding. Can you please repeat that?"
+            "reply": "I'm having trouble understanding. Can you please repeat that?"
         }
 
 
