@@ -274,7 +274,7 @@ class MultiLLMDetector:
             )
     
     async def _detect_gemini(self, message: str) -> LLMResponse:
-        """Detect scam using Gemini (new google.genai package)."""
+        """Detect scam using Gemini (new google.genai package) with 10s timeout."""
         import time
         start = time.time()
         
@@ -284,14 +284,18 @@ class MultiLLMDetector:
             client = genai.Client(api_key=self.gemini_key)
             prompt = SCAM_DETECTION_PROMPT.format(message=message)
             
-            response = await asyncio.to_thread(
-                client.models.generate_content,
-                model=settings.GEMINI_MODEL,
-                contents=prompt,
-                config={
-                    "temperature": 0.1,
-                    "max_output_tokens": 500  # Increased to prevent truncation
-                }
+            # Add 10 second timeout to prevent blocking
+            response = await asyncio.wait_for(
+                asyncio.to_thread(
+                    client.models.generate_content,
+                    model=settings.GEMINI_MODEL,
+                    contents=prompt,
+                    config={
+                        "temperature": 0.1,
+                        "max_output_tokens": 500  # Increased to prevent truncation
+                    }
+                ),
+                timeout=10.0
             )
             
             result = self._parse_llm_response(response.text)
@@ -305,6 +309,19 @@ class MultiLLMDetector:
                 reasoning=result.get("reasoning", ""),
                 response_time_ms=elapsed,
                 success=True
+            )
+        except asyncio.TimeoutError:
+            elapsed = int((time.time() - start) * 1000)
+            logger.warning(f"Gemini timed out after 10s")
+            return LLMResponse(
+                provider=LLMProvider.GEMINI,
+                is_scam=False,
+                confidence=0.0,
+                scam_type=None,
+                reasoning="Timeout",
+                response_time_ms=elapsed,
+                success=False,
+                error="Timeout after 10s"
             )
         except Exception as e:
             elapsed = int((time.time() - start) * 1000)

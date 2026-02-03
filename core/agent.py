@@ -262,7 +262,7 @@ class LLMClient:
         return await loop.run_in_executor(None, _sync_call)
     
     async def _call_gemini(self, prompt: str, max_tokens: int) -> Optional[str]:
-        """Call Gemini API using new google.genai package."""
+        """Call Gemini API using new google.genai package with 10s timeout."""
         loop = asyncio.get_event_loop()
         
         def _sync_call():
@@ -276,7 +276,15 @@ class LLMClient:
             )
             return response.text
         
-        return await loop.run_in_executor(None, _sync_call)
+        # Add 10 second timeout to prevent blocking
+        try:
+            return await asyncio.wait_for(
+                loop.run_in_executor(None, _sync_call),
+                timeout=10.0
+            )
+        except asyncio.TimeoutError:
+            logger.warning("Gemini timed out after 10s")
+            return None
 
     async def _call_local(self, prompt: str, max_tokens: int) -> Optional[str]:
         """Call a local LLM (e.g., Ollama) via HTTP."""
