@@ -191,10 +191,16 @@ class CallbackPayload(BaseModel):
 class GUVISimpleResponse(BaseModel):
     """EXACT response format from Problem Statement Section 8.
     
-    The PS specifies: {"status": "success", "reply": "..."}
+    Includes both 'reply' and 'response' for maximum compatibility.
     """
     status: str = "success"
     reply: str = Field(..., description="AI Agent's human-like response")
+    response: str = Field(default="", description="Alias for reply (compatibility)")
+    
+    @model_validator(mode='after')
+    def set_response_from_reply(self):
+        object.__setattr__(self, 'response', self.reply)
+        return self
 
 
 class HealthResponse(BaseModel):
