@@ -228,21 +228,18 @@ async def guvi_honeypot(
             f"turn={session.conversation_turn}, IQS={iqs:.1f}"
         )
         
-        # Return EXACT format with both 'reply' and 'response' for compatibility
+        # Return EXACT format from PS Section 8 - ONLY status and reply
         return {
             "status": "success",
-            "reply": agent_response.response,
-            "response": agent_response.response
+            "reply": agent_response.response
         }
         
     except Exception as e:
         logger.error(f"[GUVI] Error: {str(e)}", exc_info=True)
         # Even on error, try to return valid format
-        fallback_msg = "I'm having trouble understanding. Can you please repeat that?"
         return {
             "status": "error",
-            "reply": fallback_msg,
-            "response": fallback_msg
+            "reply": "I'm having trouble understanding. Can you please repeat that?"
         }
 
 
