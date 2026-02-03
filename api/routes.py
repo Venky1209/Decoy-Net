@@ -234,7 +234,7 @@ async def guvi_honeypot(
     }
 )
 async def analyze_message(
-    request: HoneypotRequest,
+    request: Request,
     background_tasks: BackgroundTasks,
     api_key: str = Depends(verify_api_key)
 ):
@@ -247,21 +247,46 @@ async def analyze_message(
     - Context Analysis
     """
     try:
-        logger.info(f"Processing message for session: {request.sessionId}")
+        # Parse body flexibly - accept any JSON
+        try:
+            body = await request.json()
+        except:
+            body = {}
+        
+        # Extract fields with maximum flexibility
+        session_id = body.get("sessionId") or body.get("session_id") or str(__import__("uuid").uuid4())
+        
+        # Handle message in multiple formats
+        message = body.get("message") or body.get("text") or body.get("msg") or "Hello"
+        if isinstance(message, dict):
+            message = message.get("text") or message.get("content") or "Hello"
+        
+        # Handle conversation history
+        history = body.get("conversationHistory") or body.get("conversation_history") or body.get("history") or []
+        
+        # Create proper request object
+        honeypot_request = HoneypotRequest(
+            sessionId=session_id,
+            message=message,
+            conversationHistory=history,
+            metadata=body.get("metadata")
+        )
+        
+        logger.info(f"Processing message for session: {honeypot_request.sessionId}")
         
         # 1. Get or create session
         session = session_manager.get_or_create_session(
-            request.sessionId,
-            request.conversationHistory
+            honeypot_request.sessionId,
+            honeypot_request.conversationHistory
         )
         
         # Get message text (supports both string and object format)
-        message_text = request.get_message_text()
+        message_text = honeypot_request.get_message_text()
         
         # 2. Extract intelligence FIRST (needed for pattern memory)
         current_intelligence = intelligence_extractor.extract_all(
             message=message_text,
-            conversation_history=request.conversationHistory
+            conversation_history=honeypot_request.conversationHistory
         )
         session.update_intelligence(current_intelligence)
         
@@ -269,7 +294,7 @@ async def analyze_message(
         # Passes current intelligence to check against Pattern Memory
         scam_result = await enhanced_detector.detect(
             message=message_text,
-            conversation_history=request.conversationHistory,
+            conversation_history=honeypot_request.conversationHistory,
             intelligence=session.intelligence
         )
         
@@ -314,7 +339,7 @@ async def analyze_message(
         )
         
         if should_callback:
-            logger.info(f"Triggering callback for session: {request.sessionId}")
+            logger.info(f"Triggering callback for session: {honeypot_request.sessionId}")
             background_tasks.add_task(
                 callback_handler.send_callback,
                 session=session,
@@ -325,7 +350,7 @@ async def analyze_message(
         
         # 9. Build response
         response = HoneypotResponse(
-            sessionId=request.sessionId,
+            sessionId=honeypot_request.sessionId,
             response=agent_response.response,
             isScam=scam_result.is_scam,
             confidence=scam_result.confidence,
